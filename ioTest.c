@@ -1,7 +1,4 @@
-#include "../io.h"
-#include <stdio.h>
-
-extern bool in_bounds(Word to_check);
+#include "io.h"
 
 int main() {
 	char word[5];
@@ -16,9 +13,9 @@ int main() {
 
 	write('\n');
 
-	write(600);
+	// write(600);
 
 	write('\n');
 
-	printf("6123: %d | 213: %d\n", in_bounds(6123), in_bounds(213));
+	printf("6123: %d | 213: %d\n", in_bounds(61231,255), in_bounds(213,255));
 }

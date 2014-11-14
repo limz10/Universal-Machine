@@ -22,7 +22,10 @@
  * if this function is called more than once on a machine, subsequent
  * calls to the function will be ignored as need only be initialized once.
  */
-void initialize_memory(UM machine);
+SegmentBlock SegmentBlock_new();
+
+/* unitializes the memory module. */
+bool SegmentBlock_free(SegmentBlock* mem);
 
 /* maps a segment in the UM of size number of words and returns a 
  * unique segment id for referering to the segment in future calls */

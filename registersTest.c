@@ -1,6 +1,6 @@
-#include "../controller.h"
-#include "../io.h"
-#include "../helpers.h"
+#include "controller.h"
+#include "io.h"
+#include "helpers.h"
 
 int main() {
 	UM machine = UM_new();
@@ -13,7 +13,7 @@ int main() {
 
 	int i = 0;
 
-	while (input!=EOF) {
+	while (input!=(Word)EOF) {
 		register_store(machine, i%8, input);
 		input = read();
 		i++;

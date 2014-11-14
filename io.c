@@ -2,9 +2,9 @@
 #include "helpers.h"
 
 Word read() {
-        Word to_return = getchar();
+        Word to_return = (Word) getchar();
 
-        if(to_return != EOF && !in_bounds(to_return, 255)) {
+        if(to_return != (Word)EOF && !in_bounds(to_return, 255)) {
                 fprintf(stderr, "You cannot read value %u!\n", (unsigned)to_return);
                 exit(1);
         }
