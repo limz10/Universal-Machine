@@ -13,7 +13,8 @@ int main() {
 
 	int i = 0;
 
-	while (input!=(Word)EOF) {
+	// UM_NULL signifies EOF
+	while (input!=UM_NULL) {
 		register_store(machine, i%8, input);
 		input = read();
 		i++;
