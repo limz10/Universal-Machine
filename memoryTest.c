@@ -18,6 +18,10 @@ int main() {
         }
 
         for(int i = 0; i < 100; i++) {
+                segs[i]
+        }
+
+        for(int i = 0; i < 100; i++) {
                 if (!segs[i]) {
                         unmap(machine, segs[i]);
                 }
