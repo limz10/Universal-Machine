@@ -2,8 +2,8 @@
 #include "seq.h"
 #include "uarray.h"
 
-static const int SEQ_SIZE = 1000;
-static const int SEG_MAP_SIZE = 1000;
+static const int SEQ_SIZE = 100000;
+static const int SEG_MAP_SIZE = 100000;
 
 /* DEFINIATION OF STRUCT to store data for our SegmentBlock */
 struct SegmentBlock_T {
@@ -11,12 +11,6 @@ struct SegmentBlock_T {
         SegmentID next_seg;
         UArray_T seg_map;
 };
-
-/* struct to store an indivudal segment */
-typedef struct Segment_T {
-        Word length;
-        Word words[];
-} * Segment;
 
 /* === static functions headers === */
 
@@ -31,9 +25,11 @@ static SegmentID new_seg_id(SegmentBlock mem) {
         return seg_id;
 }
 
-static Segment allocate_segment(unsigned length) {
-        return malloc(sizeof(Segment)+(sizeof(Word)*length));
+static Word* allocate_segment(unsigned length) {
+        return calloc(sizeof(Word)*(length+1), sizeof(Word));
 }
+
+
 
 /* === IMPLEMENTATION === */
 
@@ -41,11 +37,12 @@ SegmentBlock SegmentBlock_new() {
         SegmentBlock mem = malloc(sizeof(struct SegmentBlock_T));
         mem->unmapped_ids = Seq_new(SEQ_SIZE);
         mem->next_seg = 0;
-        mem->seg_map = UArray_new(SEG_MAP_SIZE, sizeof(Segment));
+        mem->seg_map = UArray_new(SEG_MAP_SIZE, sizeof(uintptr_t));
         return mem;
 }
 
 bool SegmentBlock_free(SegmentBlock* mem) {
+        free(*((Word**)UArray_at((*mem)->seg_map, 0)));
         Seq_free(&((*mem)->unmapped_ids));
         UArray_free(&((*mem)->seg_map));
         free(*mem);
@@ -55,32 +52,56 @@ bool SegmentBlock_free(SegmentBlock* mem) {
 SegmentID map(UM machine, unsigned length) {
         SegmentBlock mem = machine->memory;
         SegmentID seg_id = new_seg_id(mem);
-        Segment seg = UArray_at(mem->seg_map, seg_id);
-        seg = allocate_segment(length);
-        (void)seg;
+        Word** seg = UArray_at(mem->seg_map, seg_id);
+        *seg = allocate_segment(length);
+        (*seg)[0] = length;
         return seg_id;
 }
 
 void unmap(UM machine, SegmentID id) {
         UArray_T seg_map = machine->memory->seg_map;
-        Segment seg = UArray_at(seg_map, id);
-        free(seg);
-        seg = (Segment)UM_NULL;
-        (void)seg;
+
+        assert(id < (unsigned)UArray_length(seg_map));
+        Word** seg = UArray_at(seg_map, id);
+
+        assert(seg);
+
+        free(*seg);
+        *seg = NULL;
         Seq_addhi(machine->memory->unmapped_ids, (void *)(uintptr_t)id);
 }
 
+void duplicate(UM machine, SegmentID from, SegmentID to) {
+        SegmentBlock mem = machine->memory;
+
+        Word** seg1 = UArray_at(mem->seg_map, from);
+        Word** seg2 = UArray_at(mem->seg_map, to);
+
+        *seg2 = *seg1;
+}
+
 Word put_word(UM machine, SegmentID id, unsigned offset, Word value) {
-        (void)machine;
-        (void)id;
-        (void)offset;
-        (void)value;
-        return 123;
+        UArray_T seg_map = machine->memory->seg_map;
+
+        assert(id < (unsigned)UArray_length(seg_map));
+        Word** seg = UArray_at(seg_map, id);
+
+        assert(seg && *seg);
+        assert(offset < (*seg)[0]);
+
+        Word to_return = (*seg)[offset+1];
+        (*seg)[offset+1] = value;
+        return to_return;
 }
 
 Word get_word(UM machine, SegmentID id, unsigned offset) {
-        (void)machine;
-        (void)id;
-        (void)offset;
-        return 321;
+        UArray_T seg_map = machine->memory->seg_map;
+
+        assert(id < (unsigned)UArray_length(seg_map));
+        Word** seg = UArray_at(seg_map, id);
+
+        assert(seg && *seg);
+        assert(offset < (*seg)[0]);
+
+        return (*seg)[offset+1];
 }

@@ -16,10 +16,10 @@ CIILIBS=`pkg-config --libs cii40`
 
 # compile and link against course software and netpbm library
 CFLAGS="-I. -I/comp/40/include $CIIFLAGS"
-LIBS="$CIILIBS"
+LIBS="$CIILIBS -lbitpack -lum-dis -lcii"
 LFLAGS="-L/comp/40/lib64"
 
-MODULES="memory.o io.o virtualization.o helpers.o controller.o"
+MODULES="memory.o io.o virtualization.o helpers.o controller.o p_load.o execute.o"
 
 # these flags max out warnings and debug info
 FLAGS="-g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic"
@@ -40,6 +40,12 @@ done
 # link together .o files + libraries to make executable binaries
 # using one case statement per executable binary
 
+case $link in
+  all|um) gcc $FLAGS -o um um.o\
+                  $MODULES $LIBS $LFLAGS 
+              linked=yes ;;
+esac
+
 # TESTS 
 
 case $link in
@@ -56,6 +62,12 @@ esac
 
 case $link in
   all|memoryTest) gcc $FLAGS -o memoryTest memoryTest.o\
+                  $MODULES $LIBS $LFLAGS 
+              linked=yes ;;
+esac
+
+case $link in
+  all|loadTest) gcc $FLAGS -o loadTest loadTest.o\
                   $MODULES $LIBS $LFLAGS 
               linked=yes ;;
 esac

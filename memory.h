@@ -34,6 +34,8 @@ SegmentID map(UM machine, unsigned size);
 /* unmaps a segment in the UM by a given segment id */
 void unmap(UM machine, SegmentID id);
 
+void duplicate(UM machine, SegmentID from, SegmentID to);
+
 /* puts a word specified by a value into a segment in the UM specified
  * by a segment id and offset. returns the word that was previously
  * in this space */
