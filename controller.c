@@ -10,6 +10,7 @@ UM UM_new() {
         machine->registers = calloc(sizeof(Word)*NUM_REGISTERS, sizeof(Word));
         machine->memory = SegmentBlock_new();
         machine->pc = 0;
+        machine->program_length = 0;
         return machine;
 }
 

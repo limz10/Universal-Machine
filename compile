@@ -16,13 +16,13 @@ CIILIBS=`pkg-config --libs cii40`
 
 # compile and link against course software and netpbm library
 CFLAGS="-I. -I/comp/40/include $CIIFLAGS"
-LIBS="$CIILIBS -lbitpack -lum-dis -lcii"
+LIBS="$CIILIBS -lcii40-O2"
 LFLAGS="-L/comp/40/lib64"
 
-MODULES="memory.o io.o virtualization.o helpers.o controller.o p_load.o execute.o"
+MODULES="memory.o io.o virtualization.o controller.o p_load.o execute.o"
 
 # these flags max out warnings and debug info
-FLAGS="-g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic -Os"
+FLAGS="-g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic -O2"
 
 rm -f *.o  # make sure no object files are left hanging around
 
@@ -42,40 +42,6 @@ done
 
 case $link in
   all|um) gcc $FLAGS -o um um.o\
-                  $MODULES $LIBS $LFLAGS 
-              linked=yes ;;
-esac
-
-# PROFILING
-
-case $link in
-  all|um) gcc  $FLAGS -pg -o umProfile um.o\
-                  $MODULES $LIBS $LFLAGS 
-              linked=yes ;;
-esac
-
-# TESTS 
-
-case $link in
-  all|ioTest) gcc $FLAGS -o ioTest ioTest.o\
-                  $MODULES $LIBS $LFLAGS 
-              linked=yes ;;
-esac
-
-case $link in
-  all|registersTest) gcc $FLAGS -o registersTest registersTest.o\
-                  $MODULES $LIBS $LFLAGS 
-              linked=yes ;;
-esac
-
-case $link in
-  all|memoryTest) gcc $FLAGS -o memoryTest memoryTest.o\
-                  $MODULES $LIBS $LFLAGS 
-              linked=yes ;;
-esac
-
-case $link in
-  all|loadTest) gcc $FLAGS -o loadTest loadTest.o\
                   $MODULES $LIBS $LFLAGS 
               linked=yes ;;
 esac

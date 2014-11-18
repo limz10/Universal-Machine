@@ -2,20 +2,12 @@
 #include "memory.h"
 #include "bitpack.h"
 #include "io.h"
-#include "um-dis.h"
-
-typedef enum { MOVE, SEGLOAD, SEGSTORE, ADD, 
-        MULT, DIV, NAND,  HALT, MAP, UNMAP, 
-        OUTPUT, INPUT, JUMP, LOADVAL } OPCODE;
-
-typedef enum { R0, R1, R2, R3, R4,
-        R5, R6, R7 } REGISTER;
 
 typedef struct {
-        OPCODE opcode;
-        REGISTER rA;
-        REGISTER rB;
-        REGISTER rC;
+        Word opcode;
+        Word rA;
+        Word rB;
+        Word rC;
         Word rAv;
         Word rBv;
         Word rCv;
@@ -24,9 +16,8 @@ typedef struct {
 
 typedef void (*funPtr)(UM, UM_Instruction);
 
-static UM_Instruction unpack(UM machine, Word packed_instruction);
-
-static funPtr* getFunctions();
+static inline UM_Instruction unpack(UM machine, Word packed_instruction);
+static inline Word unpack_bits(Word bitword, unsigned width, unsigned lsb);
 
 static void exe_move(UM machine, UM_Instruction i);
 static void exe_segload(UM machine, UM_Instruction i);
@@ -43,54 +34,54 @@ static void exe_input(UM machine, UM_Instruction i);
 static void exe_jump(UM machine, UM_Instruction i);
 static void exe_loadval(UM machine, UM_Instruction i);
 
+static funPtr functions[14] = { 
+        &exe_move,
+        &exe_segload,
+        &exe_segstore,
+        &exe_add,
+        &exe_multiply,
+        &exe_divide,
+        &exe_nand,
+        &exe_halt,
+        &exe_map,
+        &exe_unmap,
+        &exe_output,
+        &exe_input,
+        &exe_jump,
+        &exe_loadval
+};
+
 bool execute(UM machine) {
         Word packed = get_word(machine, 0, machine->pc);
         UM_Instruction i = unpack(machine, packed);
-        funPtr* functions = getFunctions();
         if (i.opcode > 13) return false;
         (*(functions[i.opcode]))(machine, i);
-        free(functions);
         return true;
 }
 
-static UM_Instruction unpack(UM machine, Word packed) {
+static inline UM_Instruction unpack(UM machine, Word packed) {
         UM_Instruction i;
 
-        i.opcode = Bitpack_getu(packed, 4, 28);
+        i.opcode = unpack_bits(packed, 4, 28);
 
         if (i.opcode < 13) {
-                i.rA = Bitpack_getu(packed, 3, 6);
+                i.rA = unpack_bits(packed, 3, 6);
                 i.rAv = register_load(machine, i.rA);
-                i.rB = Bitpack_getu(packed, 3, 3);
+                i.rB = unpack_bits(packed, 3, 3);
                 i.rBv = register_load(machine, i.rB);
-                i.rC = Bitpack_getu(packed, 3, 0);
+                i.rC = unpack_bits(packed, 3, 0);
                 i.rCv = register_load(machine, i.rC);
         } else {
-                i.rA = Bitpack_getu(packed, 3, 25);
+                i.rA = unpack_bits(packed, 3, 25);
                 i.rAv = register_load(machine, i.rA);
-                i.value = Bitpack_getu(packed, 25, 0);
+                i.value = unpack_bits(packed, 25, 0);
         }
 
         return i;
 }
 
-static funPtr* getFunctions() {
-        funPtr* array = malloc(sizeof(funPtr)*14);
-        array[0] = &exe_move;
-        array[1] = &exe_segload;
-        array[2] = &exe_segstore;
-        array[3] = &exe_add;
-        array[4] = &exe_multiply;
-        array[5] = &exe_divide;
-        array[6] = &exe_nand;
-        array[7] = &exe_halt;
-        array[8] = &exe_map;
-        array[9] = &exe_unmap;
-        array[10] = &exe_output;
-        array[11] = &exe_input;
-        array[12] = &exe_jump;
-        array[13] = &exe_loadval;
-        return array;     
+static inline Word unpack_bits(Word bitword, unsigned width, unsigned lsb) {
+        return bitword << (32 - (width + lsb)) >> (32 - width);
 }
 
 static void exe_move(UM machine, UM_Instruction i) {

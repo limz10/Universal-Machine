@@ -22,7 +22,7 @@ typedef struct UM_T {
 
 #define UM_NULL ((Word)-1)
 
-Word register_store(UM machine, int id, Word value);
-Word register_load(UM machine, int id);
+Word register_store(UM machine, unsigned id, Word value);
+Word register_load(UM machine, unsigned id);
 
 #endif
