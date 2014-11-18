@@ -2,8 +2,8 @@
 #include "seq.h"
 #include "uarray.h"
 
-static const int SEQ_SIZE = 100000;
-static const int SEG_MAP_SIZE = 100000;
+static const int SEQ_SIZE = 1000;
+static const int SEG_MAP_SIZE = 1000;
 
 /* DEFINIATION OF STRUCT to store data for our SegmentBlock */
 struct SegmentBlock_T {
@@ -29,8 +29,6 @@ static Word* allocate_segment(unsigned length) {
         return calloc(sizeof(Word)*(length+1), sizeof(Word));
 }
 
-
-
 /* === IMPLEMENTATION === */
 
 SegmentBlock SegmentBlock_new() {
@@ -51,8 +49,13 @@ bool SegmentBlock_free(SegmentBlock* mem) {
 
 SegmentID map(UM machine, unsigned length) {
         SegmentBlock mem = machine->memory;
+        UArray_T seg_map = mem->seg_map;
         SegmentID seg_id = new_seg_id(mem);
-        Word** seg = UArray_at(mem->seg_map, seg_id);
+        unsigned seg_map_length = UArray_length(seg_map);
+        if (seg_id >= seg_map_length) {
+                UArray_resize(seg_map, (seg_map_length+SEG_MAP_SIZE));
+        }
+        Word** seg = UArray_at(seg_map, seg_id);
         *seg = allocate_segment(length);
         (*seg)[0] = length;
         return seg_id;
@@ -60,8 +63,9 @@ SegmentID map(UM machine, unsigned length) {
 
 void unmap(UM machine, SegmentID id) {
         UArray_T seg_map = machine->memory->seg_map;
+        unsigned seg_map_length = UArray_length(seg_map);
 
-        assert(id < (unsigned)UArray_length(seg_map));
+        assert(id < seg_map_length);
         Word** seg = UArray_at(seg_map, id);
 
         assert(seg);
