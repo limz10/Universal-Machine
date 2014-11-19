@@ -60,7 +60,10 @@ SegmentID map(UM machine, unsigned length) {
                 UArray_resize(seg_map, seg_map_length);
         }
         Word** seg = get_segment(seg_map, seg_id);
-        *seg = allocate_segment(length);
+        if(!((*seg) = allocate_segment(length))) {
+                fprintf(stderr, "Machine is out of memory!\n");
+                exit(1);
+        }
         (*seg)[0] = length;
         return seg_id;
 }

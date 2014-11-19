@@ -1,0 +1,37 @@
+0       Conditional Move        if $r[C] != 0 then $r[A] := $r[B]
+
+1       Segmented Load  $r[A] := $m[$r[B]][$[C]]
+
+2       Segmented Store $m[$r[A]][$r[B]] := $[C]
+
+3       Addition        $r[A] := ($r[B] + $r[C]) mod 2^32
+
+4       Multiplication  $r[A] := ($r[B] x $r[C]) mod 2^32
+
+5       Division        $r[A] := ($r[B] / $r[C])
+
+6       Bitwise NAND    $r[A] := NOT($r[B] AND $r[C])
+
+7       Halt    computation stops
+
+8       Map Segment     a new segment created with number of words = $r[C].
+each word is initialized to 0. 
+segID is placed in $r[B].
+new segment is mapped as $m[$r[B]].
+
+9       Unmap Segment   segment $m[$r[C]] is unmapped.
+future segments may reuse segID $[C].
+
+10      Output  the value in $r[C] is displayed to I/O device.
+only values 0 to 255 allowed.
+
+11      Input   UM waits for input on I/O device.
+when input arrives, $r[C] is loaded with the input.
+must be a value from 0 to 255.
+if end of input has been reached, $r[C] is a 32-bit word in which every bit is 1.
+
+12      Load Program    segment $m[$r[B]] is duplicated, and the duplicate replaces $m[0].
+the program counter is set to point to $m[0][$r[C]]
+
+13      Load Value      load value into $r[A].
+(uses different word format).
