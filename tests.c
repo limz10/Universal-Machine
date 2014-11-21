@@ -14,7 +14,8 @@ void put_inst(Seq_T stream, int i, Um_instruction inst) {
 
 /* STATIC HELPERS */
 
-static Um_instruction three_register(Um_opcode op, Um_reg ra, Um_reg rb, Um_reg rc) {
+static Um_instruction three_register(Um_opcode op, Um_reg ra, 
+	Um_reg rb, Um_reg rc) {
 	Um_instruction inst = 0;
 
         inst = Bitpack_newu(inst, 4, 28, (unsigned)op);
@@ -101,6 +102,14 @@ static void emit_out_string(Seq_T stream, const char *s, Um_reg aux_reg) {
 	}
 }
 
+// // emit virtual instructions
+// static void emit_subtract(Um_reg ra, Um_reg rb, Um_reg rc) {
+// 	emit(stream, nand(rc, rc, rc));
+// 	emit(stream, add(rb, rb, rc));
+// 	emit(stream, loadval(ra, 1));
+// 	emit(stream, add(ra, rb, ra));
+// }
+
 /* EMIT TESTS */
 
 void emit_halt_test(Seq_T stream) {
@@ -165,10 +174,10 @@ void emit_map_memory_test(Seq_T stream) {
 	emit_out_string(stream, "Mapped segment.\n", r2);
 	emit(stream, nand(r4, r5, r5));
 	emit(stream, add(r4, r7, r4));
-	emit(stream, add(r5, r5, r6)); // r5++
 	int patch_End = Seq_length(stream);
 	emit(stream, loadval(r0, 0));
 	emit(stream, loadval(r2, mapJump));
+	emit(stream, add(r5, r5, r6)); // r5++
 	emit(stream, move(r0, r2, r4));
 	emit(stream, jump(r3, r0));
 	add_label(stream, patch_End, Seq_length(stream));

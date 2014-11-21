@@ -15,7 +15,7 @@
 #ifndef MEMORY
 #define MEMORY
 
-#include "helpers.h"
+#include "virtualization.h"
 
 /* sets up the memory in the machine by initializing all necessary values.
  * this must be called before segments can be mapped.
@@ -34,6 +34,7 @@ SegmentID map(UM machine, unsigned size);
 /* unmaps a segment in the UM by a given segment id */
 void unmap(UM machine, SegmentID id);
 
+/* duplicates a segment into another segment */
 void duplicate(UM machine, SegmentID from, SegmentID to);
 
 /* puts a word specified by a value into a segment in the UM specified

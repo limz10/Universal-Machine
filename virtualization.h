@@ -1,3 +1,13 @@
+/* *************************************************
+ * Virtualization Module Interface
+ * by Thomas Li & Spencer Schoeben
+ * November 21, 2014
+ * COMP 40 HW 6
+ *
+ * This module maintains shared truths about the datatypes used
+ * in the UM. It also allows loading and storing to registers.
+ */
+
 #ifndef VIRTUALIZATION
 #define VIRTUALIZATION
 
@@ -22,7 +32,12 @@ typedef struct UM_T {
 
 #define UM_NULL ((Word)-1)
 
+/* stores value in the specified register in the machine.
+ * returns previous value of the register */
 Word register_store(UM machine, unsigned id, Word value);
+
+/* loads value in the specified register in the machine
+ * and returns it */
 Word register_load(UM machine, unsigned id);
 
 #endif

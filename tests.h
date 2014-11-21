@@ -1,7 +1,7 @@
 #ifndef TESTS
 #define TESTS
 
-#include "helpers.h"
+#include "virtualization.h"
 
 #include <stdbool.h>
 #include <stdio.h>

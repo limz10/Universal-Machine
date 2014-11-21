@@ -23,10 +23,13 @@ struct SegmentBlock_T {
 
 /* === static functions headers === */
 
+/* returns a unique SegmentID which is currently not in use. */
 static inline SegmentID new_seg_id(SegmentBlock mem);
 
+/* allocates memory for a new segmend and returns the pointer to it */
 static inline Word* allocate_segment(unsigned length);
 
+/* gets the segment from our seg_map */
 static inline void* get_segment(UArray_T seg_map, int seg_id);
 
 /* === IMPLEMENTATION === */
