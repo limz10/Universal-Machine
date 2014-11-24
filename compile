@@ -19,7 +19,7 @@ CFLAGS="-I. -I/comp/40/include $CIIFLAGS"
 LIBS="$CIILIBS -lcii40-O2"
 LFLAGS="-L/comp/40/lib64"
 
-MODULES="memory.o io.o virtualization.o controller.o p_load.o execute.o"
+MODULES="dyn_array.o memory.o io.o virtualization.o controller.o p_load.o execute.o"
 
 # these flags max out warnings and debug info
 FLAGS="-g -O0 -Wall -Wextra -Werror -Wfatal-errors -std=c99 -pedantic -O2"
@@ -42,6 +42,12 @@ done
 
 case $link in
   all|um) gcc $FLAGS -o um um.o\
+                  $MODULES $LIBS $LFLAGS 
+              linked=yes ;;
+esac
+
+case $link in
+  all|array_test) gcc $FLAGS -o array_test array_test.o\
                   $MODULES $LIBS $LFLAGS 
               linked=yes ;;
 esac

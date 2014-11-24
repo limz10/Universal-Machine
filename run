@@ -5,4 +5,4 @@ for i in midmark.um sandmark.umz
 do
         /usr/bin/time -f "um $i: %U seconds (user time)" ./um $i > /dev/null
 done
-valgrind --tool=callgrind ./um midmark.um > /dev/null
+valgrind --tool=callgrind --simulate-cache=yes ./um midmark.um > /dev/null

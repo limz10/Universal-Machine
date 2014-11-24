@@ -1,5 +1,5 @@
 #include "memory.h"
-#include "seq.h"
+#include "dyn_array.h"
 #include "uarray.h"
 
 struct UArray_T {
@@ -16,7 +16,7 @@ static unsigned seg_map_length;
 
 /* DEFINIATION OF STRUCT to store data for our SegmentBlock */
 struct SegmentBlock_T {
-        Seq_T unmapped_ids;
+        Queue unmapped_ids;
         SegmentID next_seg;
         UArray_T seg_map;
 };
@@ -36,7 +36,7 @@ static inline void* get_segment(UArray_T seg_map, int seg_id);
 
 SegmentBlock SegmentBlock_new() {
         SegmentBlock mem = malloc(sizeof(struct SegmentBlock_T));
-        mem->unmapped_ids = Seq_new(SEQ_SIZE);
+        mem->unmapped_ids = Queue_new(SEQ_SIZE);
         seq_length = 0;
         mem->next_seg = 0;
         mem->seg_map = UArray_new(SEG_MAP_SIZE, sizeof(uintptr_t));
@@ -46,7 +46,7 @@ SegmentBlock SegmentBlock_new() {
 
 bool SegmentBlock_free(SegmentBlock* mem) {
         free(*((Word**)get_segment((*mem)->seg_map, 0)));
-        Seq_free(&((*mem)->unmapped_ids));
+        Queue_free(&((*mem)->unmapped_ids));
         UArray_free(&((*mem)->seg_map));
         seq_length = 0;
         seg_map_length = 0;
@@ -81,7 +81,7 @@ void unmap(UM machine, SegmentID id) {
 
         free(*seg);
         *seg = NULL;
-        Seq_addhi(machine->memory->unmapped_ids, (void *)(uintptr_t)id);
+        Queue_push(machine->memory->unmapped_ids, id);
         seq_length++;
 }
 
@@ -135,7 +135,7 @@ static inline SegmentID new_seg_id(SegmentBlock mem) {
                 seg_id = mem->next_seg;
                 mem->next_seg++;
         } else {
-                seg_id = (SegmentID)(uintptr_t)Seq_remlo(mem->unmapped_ids);
+                seg_id = Queue_pop(mem->unmapped_ids);
                 seq_length--;
         }
         return seg_id;
