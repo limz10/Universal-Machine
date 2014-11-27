@@ -16,7 +16,7 @@ int main(int argc, char const *argv[]) {
                 Seq_free(&seq);
                 fprintf(stderr, "SEQ\n");
         } else {
-                Queue my_queue = Queue_new(100);
+                Queue my_queue = Queue_new(100, 4);
                 for(unsigned i = 0; i < num; i++) {
                         Queue_push(my_queue, i);
                 }

@@ -6,8 +6,8 @@
 typedef struct Array_T * Array;
 typedef struct Queue_T * Queue;
 
-Queue Queue_new(unsigned hint);
-Array Array_new(unsigned hint);
+Queue Queue_new(unsigned hint, size_t size);
+Array Array_new(unsigned hint, size_t size);
 
 Word Queue_pop(Queue queue);
 void Queue_push(Queue queue, Word value);

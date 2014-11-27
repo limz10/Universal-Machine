@@ -36,7 +36,7 @@ static inline void* get_segment(UArray_T seg_map, int seg_id);
 
 SegmentBlock SegmentBlock_new() {
         SegmentBlock mem = malloc(sizeof(struct SegmentBlock_T));
-        mem->unmapped_ids = Queue_new(SEQ_SIZE);
+        mem->unmapped_ids = Queue_new(SEQ_SIZE, sizeof(Word));
         seq_length = 0;
         mem->next_seg = 0;
         mem->seg_map = UArray_new(SEG_MAP_SIZE, sizeof(uintptr_t));
