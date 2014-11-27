@@ -30,7 +30,7 @@ typedef struct UM_T {
         unsigned program_length;
 } * UM;
 
-#define UM_NULL ((Word)-1)
+#define UM_NULL 0xFFFF
 
 /* stores value in the specified register in the machine.
  * returns previous value of the register */

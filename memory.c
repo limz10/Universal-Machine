@@ -58,7 +58,7 @@ SegmentID map(UM machine, unsigned length) {
         SegmentBlock mem = machine->memory;
         UArray_T seg_map = mem->seg_map;
         SegmentID seg_id = new_seg_id(mem);
-        if (seg_id >= seg_map_length) {
+        if (seg_id == seg_map_length) {
                 seg_map_length = seg_map_length + SEG_MAP_SIZE;
                 UArray_resize(seg_map, seg_map_length);
         }
@@ -81,8 +81,10 @@ void unmap(UM machine, SegmentID id) {
 
         free(*seg);
         *seg = NULL;
-        Queue_push(machine->memory->unmapped_ids, id);
-        seq_length++;
+        if (id) {
+                Queue_push(machine->memory->unmapped_ids, id);
+                seq_length++;
+        } 
 }
 
 void duplicate(UM machine, SegmentID from, SegmentID to) {
@@ -121,7 +123,7 @@ Word get_word(UM machine, SegmentID id, unsigned offset) {
         assert(id < seg_map_length);
         Word** seg = get_segment(seg_map, id);
 
-        assert(seg && *seg);
+        assert(seg && *seg && **seg);
         assert(offset < (*seg)[0]);
 
         return (*seg)[offset+1];
@@ -131,12 +133,12 @@ Word get_word(UM machine, SegmentID id, unsigned offset) {
 
 static inline SegmentID new_seg_id(SegmentBlock mem) {
         SegmentID seg_id;
-        if(!seq_length) {
-                seg_id = mem->next_seg;
-                mem->next_seg++;
-        } else {
+        if(seq_length) {
                 seg_id = Queue_pop(mem->unmapped_ids);
                 seq_length--;
+        } else {
+                seg_id = mem->next_seg;
+                mem->next_seg++;
         }
         return seg_id;
 }

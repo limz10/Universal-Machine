@@ -35,8 +35,9 @@ Array Array_new(unsigned hint) {
 }
 
 Word Queue_pop(Queue queue) {
+        Word x = UM_NULL;
         if (queue->length == 0) return UM_NULL;
-        Word x = queue->array.values[(queue->head%queue->array.length)];
+        x = queue->array.values[(queue->head%queue->array.length)];
         queue->head = (queue->head+1)%queue->array.length;
         --queue->length;
         return x;
@@ -59,7 +60,7 @@ Word* Array_at(Array array, unsigned pos) {
 static inline void Array_resize(Array array) {
         array->length *= SCALEFACOTR;
         array->values = realloc(array->values, SIZEOF_WORD*array->length);
-        assert(array->values);
+        assert(array->values != NULL);
 }
 
 static inline void Queue_resize(Queue queue) {

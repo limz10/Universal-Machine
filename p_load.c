@@ -1,6 +1,5 @@
 #include "p_load.h"
 #include "memory.h"
-#include "um-dis.h"
 
 static unsigned wordsInFile(FILE* program);
 static Word readWord(FILE* program);
