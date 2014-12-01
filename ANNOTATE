@@ -1,12 +1,12 @@
 --------------------------------------------------------------------------------
-Profile data file 'callgrind.out.21579' (creator: callgrind-3.9.0)
+Profile data file 'callgrind.out.8927' (creator: callgrind-3.9.0)
 --------------------------------------------------------------------------------
 I1 cache: 
 D1 cache: 
 LL cache: 
-Timerange: Basic block 0 - 2357876386
+Timerange: Basic block 0 - 622613868
 Trigger: Program termination
-Profiled target:  ./um midmark.um (PID 21579, part 1)
+Profiled target:  ./um midmark.um (PID 8927, part 1)
 Events recorded:  Ir
 Events shown:     Ir
 Event sort order: Ir
@@ -16,276 +16,27 @@ User annotated:
 Auto-annotation:  on
 
 --------------------------------------------------------------------------------
-            Ir 
+           Ir 
 --------------------------------------------------------------------------------
-12,887,451,245  PROGRAM TOTALS
+5,249,014,244  PROGRAM TOTALS
 
 --------------------------------------------------------------------------------
            Ir  file:function
 --------------------------------------------------------------------------------
-5,701,879,484  execute.c:execute [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-2,508,763,824  memory.c:get_word [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-1,522,250,490  virtualization.c:register_load [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-1,017,667,984  virtualization.c:register_store [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-  595,493,664  controller.c:UM_run [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-  503,156,598  memory.c:put_word [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-  194,613,040  execute.c:exe_segload [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-  111,673,898  /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:calloc [/lib64/libc-2.12.so]
-  104,773,771  /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_free [/lib64/libc-2.12.so]
-   97,661,100  execute.c:exe_loadval [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-   95,990,148  /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc [/lib64/libc-2.12.so]
-   69,689,300  /usr/sup/src/cii40/src/seq.c:Seq_remlo [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-   64,802,992  execute.c:exe_segstore [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-   59,221,905  /usr/sup/src/cii40/src/seq.c:Seq_addhi [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-   53,763,835  memory.c:map [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-   39,481,264  memory.c:unmap [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
-   25,454,978  /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memset.S:__GI_memset [/lib64/libc-2.12.so]
-
---------------------------------------------------------------------------------
--- Auto-annotated source: memory.c
---------------------------------------------------------------------------------
-         Ir 
-
--- line 29 ----------------------------------------
-          .  /* allocates memory for a new segmend and returns the pointer to it */
-          .  static inline Word* allocate_segment(unsigned length);
-          .  
-          .  /* gets the segment from our seg_map */
-          .  static inline void* get_segment(UArray_T seg_map, int seg_id);
-          .  
-          .  /* === IMPLEMENTATION === */
-          .  
-          1  SegmentBlock SegmentBlock_new() {
-          4          SegmentBlock mem = malloc(sizeof(struct SegmentBlock_T));
-        192  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc (1x)
-          3          mem->unmapped_ids = Seq_new(SEQ_SIZE);
-        512  => /usr/sup/src/cii40/src/seq.c:Seq_new (1x)
-          1          seq_length = 0;
-          1          mem->next_seg = 0;
-          4          mem->seg_map = UArray_new(SEG_MAP_SIZE, sizeof(uintptr_t));
-      1,296  => /usr/sup/src/cii40/src/uarray.c:UArray_new (1x)
-          1          seg_map_length = SEG_MAP_SIZE;
-          .          return mem;
-          3  }
-          .  
-          2  bool SegmentBlock_free(SegmentBlock* mem) {
-          6          free(*((Word**)get_segment((*mem)->seg_map, 0)));
-         42  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1x)
-          2          Seq_free(&((*mem)->unmapped_ids));
-    560,177  => /usr/sup/src/cii40/src/seq.c:Seq_free (1x)
-          3          UArray_free(&((*mem)->seg_map));
-        179  => /usr/sup/src/cii40/src/uarray.c:UArray_free (1x)
-          1          seq_length = 0;
-          1          seg_map_length = 0;
-          3          free(*mem);
-         84  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1x)
-          .          return true;
-          3  }
-          .  
-  8,489,010  SegmentID map(UM machine, unsigned length) {
-  2,829,670          SegmentBlock mem = machine->memory;
-  1,414,835          UArray_T seg_map = mem->seg_map;
-          .          SegmentID seg_id = new_seg_id(mem);
-  4,244,505          if (seg_id >= seg_map_length) {
-         42                  seg_map_length = seg_map_length + SEG_MAP_SIZE;
-         63                  UArray_resize(seg_map, seg_map_length);
-    328,599  => /usr/sup/src/cii40/src/uarray.c:UArray_resize (21x)
-          .          }
-          .          Word** seg = get_segment(seg_map, seg_id);
-  4,244,505          if(!((*seg) = allocate_segment(length))) {
-          .                  fprintf(stderr, "Machine is out of memory!\n");
-          .                  exit(1);
-          .          }
-  1,414,835          (*seg)[0] = length;
-          .          return seg_id;
-  9,903,845  }
-          .  
-  7,050,225  void unmap(UM machine, SegmentID id) {
-  2,820,090          UArray_T seg_map = machine->memory->seg_map;
-          .  
-  2,820,090          assert(id < seg_map_length);
-          .          Word** seg = get_segment(seg_map, id);
-          .  
-  4,230,135          assert(seg);
-          .  
-  4,230,139          free(*seg);
-      1,158  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
-126,293,040  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1410045x)
-  1,410,045          *seg = NULL;
-  5,640,180          Seq_addhi(machine->memory->unmapped_ids, (void *)(uintptr_t)id);
- 59,967,626  => /usr/sup/src/cii40/src/seq.c:Seq_addhi (1410045x)
-  1,410,045          seq_length++;
-  5,640,180  }
-          .  
-          .  void duplicate(UM machine, SegmentID from, SegmentID to) {
-          .          SegmentBlock mem = machine->memory;
-          .  
-          .          Word** seg1 = get_segment(mem->seg_map, from);
-          .          unsigned seg1_length = (*seg1)[0];
-          .          Word** seg2 = get_segment(mem->seg_map, to);
-          .          free(*seg2);
--- line 94 ----------------------------------------
--- line 96 ----------------------------------------
-          .          for(unsigned i = 0; i <= seg1_length; i++) {
-          .                  (*seg2)[i] = (*seg1)[i];
-          .          }
-          .          if (to == 0) {
-          .                  machine->program_length = (*seg2)[0];
-          .          }
-          .  }
-          .  
-129,846,864  Word put_word(UM machine, SegmentID id, unsigned offset, Word value) {
- 32,461,716          UArray_T seg_map = machine->memory->seg_map;
-          .  
- 32,461,716          assert(id < seg_map_length);
-          .          Word** seg = get_segment(seg_map, id);
-          .  
- 81,154,290          assert(seg && *seg);
- 32,461,716          assert(offset < (*seg)[0]);
-          .  
- 48,692,574          Word to_return = (*seg)[offset+1];
- 16,230,858          (*seg)[offset+1] = value;
-          .          return to_return;
- 97,385,148  }
-          .  
-522,659,130  Word get_word(UM machine, SegmentID id, unsigned offset) {
-209,063,652          UArray_T seg_map = machine->memory->seg_map;
-          .  
-209,063,652          assert(id < seg_map_length);
-          .          Word** seg = get_segment(seg_map, id);
-          .  
-522,659,130          assert(seg && *seg);
-209,063,652          assert(offset < (*seg)[0]);
-          .  
-209,063,652          return (*seg)[offset+1];
-418,127,304  }
-          .  
-          .  /* STATIC INLINE */
-          .  
-          .  static inline SegmentID new_seg_id(SegmentBlock mem) {
-          .          SegmentID seg_id;
-  4,244,505          if(!seq_length) {
-     21,049                  seg_id = mem->next_seg;
-     42,098                  mem->next_seg++;
-          .          } else {
-  2,787,572                  seg_id = (SegmentID)(uintptr_t)Seq_remlo(mem->unmapped_ids);
- 69,689,300  => /usr/sup/src/cii40/src/seq.c:Seq_remlo (1393786x)
-  1,393,786                  seq_length--;
-          .          }
-          .          return seg_id;
-          .  }
-          .  
-          .  static inline Word* allocate_segment(unsigned length) {
-  7,074,175          return calloc(sizeof(Word)*(length+1), sizeof(Word));
-233,063,426  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:calloc (1414835x)
-          .  }
-          .  
-          .  static inline void* get_segment(UArray_T seg_map, int seg_id) {
-251,414,843          return seg_map->elems + seg_id * seg_map->size;
-          .  }
---------------------------------------------------------------------------------
--- Auto-annotated source: /usr/sup/src/cii40/src/seq.c
---------------------------------------------------------------------------------
-        Ir 
-
--- line 8 ----------------------------------------
-         .  #include "uarrayrep.h"
-         .  #include "mem.h"
-         .  #define T Seq_T
-         .  struct T {
-         .  	struct UArray_T array;
-         .  	int length;
-         .  	int head;
-         .  };
-        20  static void expand(T seq) {
-        15  	int n = seq->array.length;
-        30  	UArray_resize(&seq->array, 2*n);
-   726,184  => /usr/sup/src/cii40/src/uarray.c:UArray_resize (5x)
-        20  	if (seq->head > 0)
-         .  		{
-        45  			void **old = &((void **)seq->array.elems)[seq->head];
-        89  			memcpy(old+n, old, (n - seq->head)*sizeof (void *));
-     1,211  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
-    18,067  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memcpy.S:memcpy (5x)
-        30  			seq->head += n;
-         .  		}
-        10  }
-         7  T Seq_new(int hint) {
-         .  	T seq;
-         .  	assert(hint >= 0);
-         6  	NEW0(seq);
-       256  => /usr/sup/src/cii40/src/mem.c:Mem_calloc (1x)
-         2  	if (hint == 0)
-         .  		hint = 16;
-        12  	UArrayRep_init(&seq->array, hint, sizeof (void *),
-       192  => /usr/sup/src/cii40/src/mem.c:Mem_alloc (1x)
-        29  => /usr/sup/src/cii40/src/uarray.c:UArrayRep_init (1x)
-         3  		ALLOC(hint*sizeof (void *)));
-         1  	return seq;
-         4  }
-         .  T Seq_seq(void *x, ...) {
-         .  	va_list ap;
-         .  	T seq = Seq_new(0);
-         .  	va_start(ap, x);
-         .  	for ( ; x; x = va_arg(ap, void *))
-         .  		Seq_addhi(seq, x);
-         .  	va_end(ap);
-         .  	return seq;
-         .  }
-         7  void Seq_free(T *seq) {
-         4  	assert(seq && *seq);
-         .  	assert((void *)*seq == (void *)&(*seq)->array);
-         3  	UArray_free((UArray_T *)seq);
-   560,161  => /usr/sup/src/cii40/src/uarray.c:UArray_free (1x)
-         2  }
-         .  int Seq_length(T seq) {
-         .  	assert(seq);
-         .  	return seq->length;
-         .  }
-         .  void *Seq_get(T seq, int i) {
-         .  	assert(seq);
-         .  	assert(i >= 0 && i < seq->length);
-         .  	return ((void **)seq->array.elems)[
--- line 57 ----------------------------------------
--- line 70 ----------------------------------------
-         .  void *Seq_remhi(T seq) {
-         .  	int i;
-         .  	assert(seq);
-         .  	assert(seq->length > 0);
-         .  	i = --seq->length;
-         .  	return ((void **)seq->array.elems)[
-         .  	       	(seq->head + i)%seq->array.length];
-         .  }
-12,544,074  void *Seq_remlo(T seq) {
- 1,393,786  	int i = 0;
-         .  	void *x;
-         .  	assert(seq);
- 2,787,572  	assert(seq->length > 0);
-11,150,288  	x = ((void **)seq->array.elems)[
-12,544,074  	    	(seq->head + i)%seq->array.length];
-15,331,646  	seq->head = (seq->head + 1)%seq->array.length;
- 6,968,930  	--seq->length;
- 1,393,786  	return x;
- 5,575,144  }
-11,280,360  void *Seq_addhi(T seq, void *x) {
-         .  	int i;
-         .  	assert(seq);
- 8,460,270  	if (seq->length == seq->array.length)
-        15  		expand(seq);
-   745,721  => /usr/sup/src/cii40/src/seq.c:expand (5x)
- 8,460,270  	i = seq->length++;
- 9,870,315  	return ((void **)seq->array.elems)[
-15,510,495  	       	(seq->head + i)%seq->array.length] = x;
- 5,640,180  }
-         .  void *Seq_addlo(T seq, void *x) {
-         .  	int i = 0;
-         .  	assert(seq);
-         .  	if (seq->length == seq->array.length)
-         .  		expand(seq);
-         .  	if (--seq->head < 0)
-         .  		seq->head = seq->array.length - 1;
-         .  	seq->length++;
--- line 105 ----------------------------------------
+3,934,381,548  um.c:main [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+  272,458,256  um.c:exe_segload [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+  260,429,600  um.c:exe_loadval [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+  145,806,732  um.c:exe_segstore [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+  111,691,602  /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:calloc [/lib64/libc-2.12.so]
+  104,358,742  /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_free [/lib64/libc-2.12.so]
+   98,422,668  /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc [/lib64/libc-2.12.so]
+   73,171,495  um.c:exe_map [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+   46,424,417  um.c:exe_jump [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+   43,711,528  um.c:exe_unmap [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+   42,958,900  um.c:exe_nand [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+   28,789,664  um.c:exe_move [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+   28,269,360  um.c:exe_add [/h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/um]
+   25,457,444  /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memset.S:__GI_memset [/lib64/libc-2.12.so]
 
 --------------------------------------------------------------------------------
 -- Auto-annotated source: /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memset.S
@@ -301,30 +52,30 @@ Auto-annotation:  on
       .  #endif
       .  ENTRY (memset)
       .  L(memset_entry):
-600,382  	cmp    $0x1,%rdx
-600,382  	mov    %rdi,%rax	/* memset returns the dest address.  */
-600,382  	jne    L(ck2)
+600,494  	cmp    $0x1,%rdx
+600,494  	mov    %rdi,%rax	/* memset returns the dest address.  */
+600,494  	jne    L(ck2)
       .  	mov    %sil,(%rdi)
       .  	retq
       .  L(ck2):
-600,382  	mov    $0x101010101010101,%r9
-600,382  	mov    %rdx,%r8
-600,382  	movzbq %sil,%rdx
-600,382  	imul   %r9,%rdx
+600,494  	mov    $0x101010101010101,%r9
+600,494  	mov    %rdx,%r8
+600,494  	movzbq %sil,%rdx
+600,494  	imul   %r9,%rdx
       .  L(now_dw_aligned):
-600,382  	cmp    $0x90,%r8
-600,382  	jg     L(ck_mem_ops_method)
+600,494  	cmp    $0x90,%r8
+600,494  	jg     L(ck_mem_ops_method)
       .  L(now_dw_aligned_small):
-367,392  	add    %r8,%rdi
+367,472  	add    %r8,%rdi
       .  #ifndef PIC
       .  	lea    L(setPxQx)(%rip),%r11
       .  	jmpq   *(%r11,%r8,8)
       .  #else
-367,392  	lea    L(Got0)(%rip),%r11
-367,392  	lea    L(setPxQx)(%rip),%rcx
-367,392  	movswq (%rcx,%r8,2),%rcx
-367,392  	lea    (%rcx,%r11,1),%r11
-367,392  	jmpq   *%r11
+367,472  	lea    L(Got0)(%rip),%r11
+367,472  	lea    L(setPxQx)(%rip),%rcx
+367,472  	movswq (%rcx,%r8,2),%rcx
+367,472  	lea    (%rcx,%r11,1),%r11
+367,472  	jmpq   *%r11
       .  #endif
       .  
       .  L(Got0):
@@ -343,25 +94,25 @@ Auto-annotation:  on
       .  
       .  	.balign     16
       .  L(P0QI): mov    %rdx,-0x90(%rdi)
-  1,312  L(P0QH): mov    %rdx,-0x88(%rdi)
+  1,289  L(P0QH): mov    %rdx,-0x88(%rdi)
       .  #		   .balign     16
-  1,312  L(P0QG): mov    %rdx,-0x80(%rdi)
- 37,106  L(P0QF): mov    %rdx,-0x78(%rdi)
- 37,106  L(P0QE): mov    %rdx,-0x70(%rdi)
-356,587  L(P0QD): mov    %rdx,-0x68(%rdi)
-356,587  L(P0QC): mov    %rdx,-0x60(%rdi)
-367,385  L(P0QB): mov    %rdx,-0x58(%rdi)
-367,385  L(P0QA): mov    %rdx,-0x50(%rdi)
-367,385  L(P0Q9): mov    %rdx,-0x48(%rdi)
-367,386  L(P0Q8): mov    %rdx,-0x40(%rdi)
-367,386  L(P0Q7): mov    %rdx,-0x38(%rdi)
-367,386  L(P0Q6): mov    %rdx,-0x30(%rdi)
-367,386  L(P0Q5): mov    %rdx,-0x28(%rdi)
-367,386  L(P0Q4): mov    %rdx,-0x20(%rdi)
-367,386  L(P0Q3): mov    %rdx,-0x18(%rdi)
-367,389  L(P0Q2): mov    %rdx,-0x10(%rdi)
-367,391  L(P0Q1): mov    %rdx,-0x8(%rdi)
-367,391  L(P0Q0): retq
+  1,289  L(P0QG): mov    %rdx,-0x80(%rdi)
+ 37,074  L(P0QF): mov    %rdx,-0x78(%rdi)
+ 37,074  L(P0QE): mov    %rdx,-0x70(%rdi)
+356,555  L(P0QD): mov    %rdx,-0x68(%rdi)
+356,555  L(P0QC): mov    %rdx,-0x60(%rdi)
+367,465  L(P0QB): mov    %rdx,-0x58(%rdi)
+367,465  L(P0QA): mov    %rdx,-0x50(%rdi)
+367,465  L(P0Q9): mov    %rdx,-0x48(%rdi)
+367,466  L(P0Q8): mov    %rdx,-0x40(%rdi)
+367,466  L(P0Q7): mov    %rdx,-0x38(%rdi)
+367,466  L(P0Q6): mov    %rdx,-0x30(%rdi)
+367,466  L(P0Q5): mov    %rdx,-0x28(%rdi)
+367,466  L(P0Q4): mov    %rdx,-0x20(%rdi)
+367,466  L(P0Q3): mov    %rdx,-0x18(%rdi)
+367,469  L(P0Q2): mov    %rdx,-0x10(%rdi)
+367,471  L(P0Q1): mov    %rdx,-0x8(%rdi)
+367,471  L(P0Q0): retq
       .  
       .  
       .  	.balign     16
@@ -400,22 +151,22 @@ Auto-annotation:  on
       .  # align to 16 byte boundary first
       .  	#test $0xf,%rdi
       .  	#jz L(aligned_now)
-232,990  	mov    $0x10,%r10
-232,990  	mov    %rdi,%r9
-232,990  	and    $0xf,%r9
-232,990  	sub    %r9,%r10
-232,990  	and    $0xf,%r10
-232,990  	add    %r10,%rdi
-232,990  	sub    %r10,%r8
+233,022  	mov    $0x10,%r10
+233,022  	mov    %rdi,%r9
+233,022  	and    $0xf,%r9
+233,022  	sub    %r9,%r10
+233,022  	and    $0xf,%r10
+233,022  	add    %r10,%rdi
+233,022  	sub    %r10,%r8
       .  #ifndef PIC
       .  	lea    L(AliPxQx)(%rip),%r11
       .  	jmpq   *(%r11,%r10,8)
       .  #else
-232,990  	lea    L(aligned_now)(%rip), %r11
-232,990  	lea    L(AliPxQx)(%rip),%rcx
-232,990  	movswq (%rcx,%r10,2),%rcx
-232,990  	lea    (%rcx,%r11,1),%r11
-232,990  	jmpq   *%r11
+233,022  	lea    L(aligned_now)(%rip), %r11
+233,022  	lea    L(AliPxQx)(%rip),%rcx
+233,022  	movswq (%rcx,%r10,2),%rcx
+233,022  	lea    (%rcx,%r11,1),%r11
+233,022  	jmpq   *%r11
       .  #endif
       .  
       .  	.pushsection .rodata
@@ -465,22 +216,22 @@ Auto-annotation:  on
       .  #endif
       .  #if !defined USE_MULTIARCH || defined USE_SSE2
       .  	 # fill RegXMM0 with the pattern
-232,989  	 movd   %rdx,%xmm0
-232,989  	 punpcklqdq %xmm0,%xmm0
+233,021  	 movd   %rdx,%xmm0
+233,021  	 punpcklqdq %xmm0,%xmm0
       .  
-232,989  	 cmp    $0xb0,%r8 # 176
-232,989  	 jge    L(byte32sse2_pre)
+233,021  	 cmp    $0xb0,%r8 # 176
+233,021  	 jge    L(byte32sse2_pre)
       .  
- 14,005  	 add    %r8,%rdi
+ 14,039  	 add    %r8,%rdi
       .  #ifndef PIC
       .  	 lea    L(SSExDx)(%rip),%r9
       .  	 jmpq   *(%r9,%r8,8)
       .  #else
- 14,005  	 lea    L(SSE0Q0)(%rip),%r9
- 14,005  	 lea    L(SSExDx)(%rip),%rcx
- 14,005  	 movswq (%rcx,%r8,2),%rcx
- 14,005  	 lea    (%rcx,%r9,1),%r9
- 14,005  	 jmpq   *%r9
+ 14,039  	 lea    L(SSE0Q0)(%rip),%r9
+ 14,039  	 lea    L(SSExDx)(%rip),%rcx
+ 14,039  	 movswq (%rcx,%r8,2),%rcx
+ 14,039  	 lea    (%rcx,%r9,1),%r9
+ 14,039  	 jmpq   *%r9
       .  #endif
       .  
       .  L(SSE0QB):  movdqa %xmm0,-0xb0(%rdi)
@@ -499,18 +250,18 @@ Auto-annotation:  on
       .  	retq
       .  
       .  L(SSE8QB):  movdqa %xmm0,-0xb8(%rdi)
-    351  L(SSE8QA):  movdqa %xmm0,-0xa8(%rdi)
- 14,005  L(SSE8Q9):  movdqa %xmm0,-0x98(%rdi)
- 14,005  L(SSE8Q8):  movdqa %xmm0,-0x88(%rdi)
- 15,292  L(SSE8Q7):  movdqa %xmm0,-0x78(%rdi)
- 15,850  L(SSE8Q6):  movdqa %xmm0,-0x68(%rdi)
- 74,521  L(SSE8Q5):  movdqa %xmm0,-0x58(%rdi)
-190,071  L(SSE8Q4):  movdqa %xmm0,-0x48(%rdi)
-210,524  L(SSE8Q3):  movdqa %xmm0,-0x38(%rdi)
-210,548  L(SSE8Q2):  movdqa %xmm0,-0x28(%rdi)
-211,264  L(SSE8Q1):  movdqa %xmm0,-0x18(%rdi)
-232,989  L(SSE8Q0):  mov    %rdx,-0x8(%rdi)
-232,989  	retq
+    246  L(SSE8QA):  movdqa %xmm0,-0xa8(%rdi)
+ 14,039  L(SSE8Q9):  movdqa %xmm0,-0x98(%rdi)
+ 14,039  L(SSE8Q8):  movdqa %xmm0,-0x88(%rdi)
+ 15,208  L(SSE8Q7):  movdqa %xmm0,-0x78(%rdi)
+ 15,757  L(SSE8Q6):  movdqa %xmm0,-0x68(%rdi)
+ 73,995  L(SSE8Q5):  movdqa %xmm0,-0x58(%rdi)
+190,133  L(SSE8Q4):  movdqa %xmm0,-0x48(%rdi)
+210,440  L(SSE8Q3):  movdqa %xmm0,-0x38(%rdi)
+210,445  L(SSE8Q2):  movdqa %xmm0,-0x28(%rdi)
+210,961  L(SSE8Q1):  movdqa %xmm0,-0x18(%rdi)
+233,021  L(SSE8Q0):  mov    %rdx,-0x8(%rdi)
+233,021  	retq
       .  
       .  L(SSE9QB):  movdqa %xmm0,-0xb9(%rdi)
       .  L(SSE9QA):  movdqa %xmm0,-0xa9(%rdi)
@@ -529,35 +280,35 @@ Auto-annotation:  on
       .  	.balign     16
       .  L(byte32sse2_pre):
       .  
-218,984  	mov    __x86_64_shared_cache_size(%rip),%r9d  # The largest cache size
-218,984  	cmp    %r9,%r8
-437,968  	jg     L(sse2_nt_move_pre)
+218,982  	mov    __x86_64_shared_cache_size(%rip),%r9d  # The largest cache size
+218,982  	cmp    %r9,%r8
+437,964  	jg     L(sse2_nt_move_pre)
       .  	#jmp    L(byte32sse2)
       .  	.balign     16
       .  L(byte32sse2):
-435,383  	lea    -0x80(%r8),%r8 # 128
-435,383  	cmp    $0x80,%r8   # 128
-435,383  	movdqa %xmm0,(%rdi)
-435,383  	movdqa %xmm0,0x10(%rdi)
-435,383  	movdqa %xmm0,0x20(%rdi)
-435,383  	movdqa %xmm0,0x30(%rdi)
-435,383  	movdqa %xmm0,0x40(%rdi)
-435,383  	movdqa %xmm0,0x50(%rdi)
-435,383  	movdqa %xmm0,0x60(%rdi)
-435,383  	movdqa %xmm0,0x70(%rdi)
+435,433  	lea    -0x80(%r8),%r8 # 128
+435,433  	cmp    $0x80,%r8   # 128
+435,433  	movdqa %xmm0,(%rdi)
+435,433  	movdqa %xmm0,0x10(%rdi)
+435,433  	movdqa %xmm0,0x20(%rdi)
+435,433  	movdqa %xmm0,0x30(%rdi)
+435,433  	movdqa %xmm0,0x40(%rdi)
+435,433  	movdqa %xmm0,0x50(%rdi)
+435,433  	movdqa %xmm0,0x60(%rdi)
+435,433  	movdqa %xmm0,0x70(%rdi)
       .  
-435,383  	lea    0x80(%rdi),%rdi
-435,383  	jge    L(byte32sse2)
-218,984  	add    %r8,%rdi
+435,433  	lea    0x80(%rdi),%rdi
+435,433  	jge    L(byte32sse2)
+218,982  	add    %r8,%rdi
       .  #ifndef PIC
       .  	lea    L(SSExDx)(%rip),%r11
       .  	jmpq   *(%r11,%r8,8)
       .  #else
-218,984  	lea    L(SSE0Q0)(%rip),%r11
-218,984  	lea    L(SSExDx)(%rip),%rcx
-218,984  	movswq (%rcx,%r8,2),%rcx
-218,984  	lea    (%rcx,%r11,1),%r11
-218,984  	jmpq   *%r11
+218,982  	lea    L(SSE0Q0)(%rip),%r11
+218,982  	lea    L(SSExDx)(%rip),%rcx
+218,982  	movswq (%rcx,%r8,2),%rcx
+218,982  	lea    (%rcx,%r11,1),%r11
+218,982  	jmpq   *%r11
       .  #endif
       .  
       .  	.balign     16
@@ -635,210 +386,414 @@ Auto-annotation:  on
 -- line 1269 ----------------------------------------
 
 --------------------------------------------------------------------------------
--- Auto-annotated source: execute.c
+-- Auto-annotated source: um.c
 --------------------------------------------------------------------------------
          Ir 
 
--- line 46 ----------------------------------------
-          .          &exe_map,
-          .          &exe_unmap,
-          .          &exe_output,
+-- line 62 ----------------------------------------
+          .  
+          .  /* ARRAY */
+          .  
+          .  static inline void Array_new(unsigned hint, size_t size);
+          .  static inline void* Array_at(unsigned pos);
+          .  static inline void Array_resize();
+          .  static inline void Array_free();
+          .  
+          5  int main(int argc, char *argv[]) {
+          .          FILE* program;
+          2          if (argc == 2) {
+          9                  program = fopen(argv[1], "r");
+     61,175  => /usr/src/debug/glibc-2.12-2-gc4ccff1/libio/../libio/iofopen.c:fopen@@GLIBC_2.2.5 (1x)
+      1,116  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+          .          } else {
+          .                  program = NULL;
+          .          }
+          2          if (!program) {
+          .                  fprintf(stderr, "usage: ./um <file in um binary format>\n");
+          .                  exit(1);
+          .          }
+          .  
+          .          mem_init();
+          .          load(program);
+          .  
+          .          run();
+          .  
+          7          fclose(program);
+        397  => /usr/src/debug/glibc-2.12-2-gc4ccff1/libio/iofclose.c:fclose@@GLIBC_2.2.5 (1x)
+      1,202  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+          .          mem_free();
+          7  }
+          .  
+          .  /* UM CYCLE */
+          .  
+          .  static inline void run() {
+425,352,611          while(program_counter < program_length) {
+          .                  execute();
+170,141,044                  program_counter++;
+          .          }
+          .  }
+          .  
+          .  /* PROGRAM LOAD */
+          .  
+          .  static inline Word readWord(FILE* program) {
+     30,110          Word to_return = 0;
+    240,880          for(unsigned i = 0; i < sizeof(Word); i++) {
+    602,204                  ((unsigned char *)&to_return)[sizeof(Word)-i-1] = getc(program);
+  4,697,387  => /usr/src/debug/glibc-2.12-2-gc4ccff1/libio/getc.c:getc (120440x)
+      1,135  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+          .          }
+          .          return to_return;
+          .  }
+          .  
+          .  static inline unsigned wordsInFile(FILE* program) {
+          9          fseek(program, 0, SEEK_END);
+        304  => /usr/src/debug/glibc-2.12-2-gc4ccff1/libio/fseek.c:fseek (1x)
+      1,141  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+          8          unsigned fileLength = ftell(program);
+        110  => /usr/src/debug/glibc-2.12-2-gc4ccff1/libio/ioftell.c:ftell (1x)
+      1,272  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+          5          fseek(program, 0, SEEK_SET);
+        158  => /usr/src/debug/glibc-2.12-2-gc4ccff1/libio/fseek.c:fseek (1x)
+          1          return (fileLength / sizeof(Word));
+          .  }
+          .  
+          .  static inline void load(FILE* program) {
+          1          program_length = wordsInFile(program);
+          .          map(program_length);
+          .  
+    120,446          for(unsigned i = 0; i < program_length; i++) {
+          .                  put_word(0, i, readWord(program));
+          .          }        
+          .  }
+          .  
+          .  
+          .  /* MEMORY */
+          .  
+          .  static const int SEQ_SIZE = 1000;
+-- line 129 ----------------------------------------
+-- line 135 ----------------------------------------
+          .  static inline SegmentID new_seg_id();
+          .  static inline Word* allocate_segment(unsigned length);
+          .  static inline void* get_segment(int seg_id);
+          .  
+          .  /* === IMPLEMENTATION === */
+          .  
+          .  static inline void mem_init() {
+          .          Queue_new(SEQ_SIZE, sizeof(Word));
+          1          seq_length = 0;
+          .          Array_new(SEG_MAP_SIZE, sizeof(uintptr_t));
+          1          seg_map_length = SEG_MAP_SIZE;
+          1          memory.next_seg = 0;
+          .  }
+          .  
+          .  static inline void mem_free() {
+          .          unmap(0);
+          .          Queue_free();
+          .          Array_free();
+          1          seq_length = 0;
+          1          seg_map_length = 0;
+          .  }
+          .  
+          .  static inline SegmentID map(unsigned length) {
+          .          SegmentID seg_id = new_seg_id();
+  4,244,499          if (seg_id == memory.seg_map.length) {
+          .                  Array_resize();
+          .          }
+          .          Word** seg = get_segment(seg_id);
+  4,244,505          if(!((*seg) = allocate_segment(length))) {
+          .                  fprintf(stderr, "Machine is out of memory!\n");
+          .                  exit(1);
+          .          }
+  1,414,835          (*seg)[0] = length;
+          .          return seg_id;
+          .  }
+          .  
+          .  static inline void unmap(SegmentID id) {
+          .          Word** seg = get_segment(id);
+  4,230,142          free(*seg);
+      1,158  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+127,851,390  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1410045x)
+  1,410,046          *seg = NULL;
+  2,820,090          if (id) {
+          .                  Queue_push(id);
+  1,410,045                  seq_length++;
+          .          } 
+          .  }
+          .  
+          .  static inline void duplicate(SegmentID from) {
+          .          Word** seg1 = get_segment(from);
+          .          unsigned seg1_length = (*seg1)[0];
+          .          Word** seg2 = get_segment(0);
+          .          free(*seg2);
+-- line 185 ----------------------------------------
+-- line 187 ----------------------------------------
+          .          for(unsigned i = 0; i <= seg1_length; i++) {
+          .                  (*seg2)[i] = (*seg1)[i];
+          .          }
+          .          program_length = (*seg2)[0];
+          .  }
+          .  
+          .  static inline Word put_word(SegmentID id, unsigned offset, Word value) {
+          .          Word** seg = get_segment(id);
+ 32,521,936          Word to_return = (*seg)[offset+1];
+ 81,063,960          (*seg)[offset+1] = value;
+          .          return to_return;
+          .  }
+          .  
+          .  static inline Word get_word(SegmentID id, unsigned offset) {
+          .          Word** seg = get_segment(id);
+267,447,564          return (*seg)[offset+1];
+          .  }
+          .  
+          .  static inline SegmentID new_seg_id() {
+          .          SegmentID seg_id;
+  4,244,505          if(seq_length) {
+          .                  seg_id = Queue_pop();
+  2,787,572                  seq_length--;
+          .          } else {
+     21,049                  seg_id = memory.next_seg;
+     63,146                  memory.next_seg++;
+          .          }
+          .          return seg_id;
+          .  }
+          .  
+          .  static inline Word* allocate_segment(unsigned length) {
+  7,074,179          return calloc(sizeof(Word)*(length+1), sizeof(Word));
+        250  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:calloc (1x)
+      1,210  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+          .  }
+          .  
+          .  static inline void* get_segment(int seg_id) {
+ 78,383,910          return memory.seg_map.values + seg_id * memory.seg_map.size;
+          .  }
+          .  
+          .  /* REGISTERS */
+          .  
+          .  static inline void register_store(unsigned id, Word value) {
+127,208,498          if (id > 7) {
+          .                  fprintf(stderr, "Register %d does not exist."
+          .                          " Must be in [0, 7]!\n", id);
+          .                  exit(1);
+          .          }
+ 63,604,249          registers[id] = value;
+          .  }
+          .  
+          .  static inline Word register_load(unsigned id) {
+          .          if (id > 7) {
+          .                  fprintf(stderr, "Register %d does not exist. Must be in"
+          .                  " [0, 7]!\n", id);
+          .                  exit(1);
+          .          }
+432,725,154          return registers[id];
+          .  }
+          .  
+          .  /* IO */
+          .  
+          .  static inline Word read() {
+          .          Word to_return = getchar();
+          .  
+          .          if(to_return != (Word)EOF && (to_return > 255)) {
+-- line 250 ----------------------------------------
+-- line 252 ----------------------------------------
+          .                  (unsigned)to_return);
+          .                  exit(1);
+          .          }
+          .  
+          .          return to_return;
+          .  }
+          .  
+          .  static inline Word write(Word to_write) {
+        362          if(to_write > 255) {
+          .                  fprintf(stderr, "You cannot write value %u!\n",
+          .                  (unsigned)to_write);
+          .                  exit(1);
+          .          }
+          .  
+        181          Word to_return = putchar((char)to_write);
+          .  
+          .          return to_return;
+          .  }
+          .  
+          .  /* EXECUTION */
+          .  
+          .  typedef struct {
+          .          Word opcode;
+-- line 274 ----------------------------------------
+-- line 316 ----------------------------------------
           .          &exe_input,
           .          &exe_jump,
           .          &exe_loadval
           .  };
           .  
-680,564,176  bool execute(UM machine) {
-340,282,088          Word packed = get_word(machine, 0, machine->pc);
-2,041,692,528  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/memory.c:get_word (85070522x)
-          .          UM_Instruction i = unpack(machine, packed);
-255,211,566          if (i.opcode > 13) return false;
-935,775,742          (*(functions[i.opcode]))(machine, i);
- 81,667,040  => execute.c:exe_add (3141040x)
-400,704,726  => execute.c:exe_map (1414834x)
-228,563,178  => execute.c:exe_unmap (1410045x)
- 24,997,763  => execute.c:exe_jump (3571109x)
-  2,727,790  => execute.c:exe_multiply (104915x)
-          3  => execute.c:exe_halt (1x)
-567,026,180  => execute.c:exe_segstore (16200748x)
- 70,079,196  => execute.c:exe_move (2746419x)
-813,842,500  => execute.c:exe_loadval (32553700x)
-115,989,030  => execute.c:exe_nand (4295890x)
-     10,324  => execute.c:exe_output (181x)
-1,089,833,024  => execute.c:exe_segload (19461304x)
-  4,769,408  => execute.c:exe_divide (170336x)
- 85,070,522          return true;
-680,564,176  }
+          .  static inline void execute() {
+          .          Word packed = get_word(0, program_counter);
+          .          UM_Instruction i = unpack(packed);
+170,141,044          if (i.opcode <= 13) {
+850,705,220                  (*(functions[i.opcode]))(i);
+ 46,424,417  => um.c:exe_jump (3571109x)
+ 28,269,360  => um.c:exe_add (3141040x)
+ 42,958,900  => um.c:exe_nand (4295890x)
+ 28,789,664  => um.c:exe_move (2746419x)
+308,768,105  => um.c:exe_map (1414834x)
+          3  => um.c:exe_halt (1x)
+  1,703,360  => um.c:exe_divide (170336x)
+145,806,732  => um.c:exe_segstore (16200748x)
+     10,505  => um.c:exe_output (181x)
+172,584,220  => um.c:exe_unmap (1410045x)
+272,458,256  => um.c:exe_segload (19461304x)
+260,429,600  => um.c:exe_loadval (32553700x)
+    944,235  => um.c:exe_multiply (104915x)
+          .          }
+          .  }
           .  
-          .  static inline UM_Instruction unpack(UM machine, Word packed) {
+          .  static inline UM_Instruction unpack(Word packed) {
           .          UM_Instruction i;
           .  
           .          i.opcode = unpack_bits(packed, 4, 28);
           .  
 170,141,044          if (i.opcode < 13) {
           .                  i.rA = unpack_bits(packed, 3, 6);
-210,067,288                  i.rAv = register_load(machine, i.rA);
-315,100,932  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_load (52516822x)
+          .                  i.rAv = register_load(i.rA);
           .                  i.rB = unpack_bits(packed, 3, 3);
-210,067,288                  i.rBv = register_load(machine, i.rB);
-315,100,932  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_load (52516822x)
+          .                  i.rBv = register_load(i.rB);
           .                  i.rC = unpack_bits(packed, 3, 0);
-315,100,932                  i.rCv = register_load(machine, i.rC);
-315,100,932  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_load (52516822x)
+          .                  i.rCv = register_load(i.rC);
           .          } else {
           .                  i.rA = unpack_bits(packed, 3, 25);
-130,214,800                  i.rAv = register_load(machine, i.rA);
-195,322,200  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_load (32553700x)
+          .                  i.rAv = register_load(i.rA);
           .                  i.value = unpack_bits(packed, 25, 0);
           .          }
           .  
-935,775,742          return i;
+680,564,176          return i;
           .  }
           .  
           .  static inline Word unpack_bits(Word bitword, unsigned width, unsigned lsb) {
-753,044,120          return bitword << (32 - (width + lsb)) >> (32 - width);
+863,295,798          return bitword << (32 - (width + lsb)) >> (32 - width);
           .  }
           .  
-          .  static void exe_move(UM machine, UM_Instruction i) {
-  8,523,446          if (i.rCv != 0) {
-  7,386,690                  register_store(machine, i.rA, i.rBv);
- 54,169,060  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (2462230x)
+  2,746,419  static void exe_move(UM_Instruction i) {
+  8,239,257          if (i.rCv != 0) {
+  4,924,460                  register_store(i.rA, i.rBv);
           .          }
+  5,492,838  }
+ 19,461,304  static void exe_segload(UM_Instruction i) {
+ 19,461,304          register_store(i.rA, get_word(i.rBv, i.rCv));
+ 38,922,608  }
+          .  static void exe_segstore(UM_Instruction i) {
+          .          put_word(i.rAv, i.rBv, i.rCv);
           .  }
- 38,922,608  static void exe_segload(UM machine, UM_Instruction i) {
-136,229,128          register_store(machine, i.rA, get_word(machine, i.rBv, i.rCv));
-467,071,296  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/memory.c:get_word (19461304x)
-428,148,688  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (19461304x)
- 19,461,304  }
-          .  static void exe_segstore(UM machine, UM_Instruction i) {
- 64,802,992          put_word(machine, i.rAv, i.rBv, i.rCv);
-502,223,188  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/memory.c:put_word (16200748x)
-          .  }
-          .  static void exe_add(UM machine, UM_Instruction i) {
- 12,564,160          register_store(machine, i.rA, (i.rBv+i.rCv));
- 69,102,880  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (3141040x)
-          .  }
-          .  static void exe_multiply(UM machine, UM_Instruction i) {
-    419,660          register_store(machine, i.rA, (i.rBv*i.rCv));
-  2,308,130  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (104915x)
-          .  }
-          .  static void exe_divide(UM machine, UM_Instruction i) {
-  1,022,016          register_store(machine, i.rA, (i.rBv/i.rCv));
-  3,747,392  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (170336x)
-          .  }
-          .  static void exe_nand(UM machine, UM_Instruction i) {
- 21,479,450          register_store(machine, i.rA, ~(i.rBv & i.rCv));
- 94,509,580  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (4295890x)
-          .  }
-          .  static void exe_halt(UM machine, UM_Instruction i) {
+  3,141,040  static void exe_add(UM_Instruction i) {
+  9,423,120          register_store(i.rA, (i.rBv+i.rCv));
+  6,282,080  }
+    104,915  static void exe_multiply(UM_Instruction i) {
+    314,745          register_store(i.rA, (i.rBv*i.rCv));
+    209,830  }
+    170,336  static void exe_divide(UM_Instruction i) {
+    681,344          register_store(i.rA, (i.rBv/i.rCv));
+    340,672  }
+  4,295,890  static void exe_nand(UM_Instruction i) {
+ 17,183,560          register_store(i.rA, ~(i.rBv & i.rCv));
+  8,591,780  }
+          .  static void exe_halt(UM_Instruction i) {
           .          (void)i;
-          3          machine->pc = machine->program_length;
+          3          program_counter = program_length;
           .  }
-  2,829,668  static void exe_map(UM machine, UM_Instruction i) {
-  2,829,668          SegmentID seg = map(machine, i.rCv);
-356,844,872  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/memory.c:map (1414834x)
-  5,659,336          register_store(machine, i.rB, seg);
- 31,126,348  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (1414834x)
-  1,414,834  }
-          .  static void exe_unmap(UM machine, UM_Instruction i) {
-  2,820,090          unmap(machine, i.rCv);
-225,743,088  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/memory.c:unmap (1410045x)
+  4,244,502  static void exe_map(UM_Instruction i) {
+  1,414,834          SegmentID seg = map(i.rCv);
+  1,414,834          register_store(i.rB, seg);
+  5,659,336  }
+  4,230,135  static void exe_unmap(UM_Instruction i) {
+  1,410,045          unmap(i.rCv);
+  5,640,180  }
+        181  static void exe_output(UM_Instruction i) {
+        181          write(i.rCv);
+        181  }
+          .  static void exe_input(UM_Instruction i) {
+          .          register_store(i.rC, read());
           .  }
-          .  static void exe_output(UM machine, UM_Instruction i) {
-          .          (void)machine;
-        362          write(i.rCv);
-      9,962  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/io.c:write (181x)
+ 14,284,436  static void exe_jump(UM_Instruction i) {
+ 10,713,327          program_counter = i.rCv - 1;
+  7,142,218          if (i.rBv) {
+          .                  duplicate(i.rBv);
+          .          }
+ 14,284,436  }
+ 32,553,700  static void exe_loadval(UM_Instruction i) {
+ 65,107,400          register_store(i.rA, i.value);
+ 65,107,400  }
+          .  
+          .  /* QUEUE */
+          .  
+          .  static inline void Queue_new(unsigned hint, size_t size) {
+          1          memory.unmapped_ids.head = 0;
+          1          memory.unmapped_ids.length = 0;
+          1          memory.unmapped_ids.array.length = hint;
+          8          memory.unmapped_ids.array.values = malloc(size * hint);
+      1,145  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+        174  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc (1x)
+          1          memory.unmapped_ids.array.size = size;
           .  }
-          .  static void exe_input(UM machine, UM_Instruction i) {
-          .          register_store(machine, i.rC, read());
+          .  
+          .  static inline Word Queue_pop() {
+  6,968,930          if (memory.unmapped_ids.length == 0) return UM_NULL;
+ 11,150,288          Word x = memory.unmapped_ids.array.values[(memory.unmapped_ids.head%memory.unmapped_ids.array.length)];
+  8,362,716          memory.unmapped_ids.head = (memory.unmapped_ids.head+1)%memory.unmapped_ids.array.length;
+  2,787,572          --memory.unmapped_ids.length;
+          .          return x;
           .  }
-  3,571,109  static void exe_jump(UM machine, UM_Instruction i) {
- 10,713,327          machine->pc = i.rCv - 1;
- 10,713,327          if (i.rBv) {
-          .                  duplicate(machine, i.rBv, 0);
+          .  
+          .  static inline void Queue_push(Word value) {
+          .          unsigned i;
+  8,460,260          if (memory.unmapped_ids.length == memory.unmapped_ids.array.length) {
+          .                  Queue_resize();
+          .          }
+  2,820,090          i = memory.unmapped_ids.length++;
+  7,050,225          memory.unmapped_ids.array.values[((memory.unmapped_ids.head+i)%memory.unmapped_ids.array.length)] = value;
+          .  }
+          .  
+          .  
+          .  static inline void Queue_resize() {
+          .          unsigned n = memory.unmapped_ids.array.length;
+         10          memory.unmapped_ids.array.length *= SCALEFACTOR;
+         25          memory.unmapped_ids.array.values = realloc(memory.unmapped_ids.array.values, memory.unmapped_ids.array.size*memory.unmapped_ids.array.length);
+  1,012,596  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:realloc (5x)
+         15          if (memory.unmapped_ids.head > 0) {
+         10                  Word* old = &(memory.unmapped_ids.array.values)[memory.unmapped_ids.head];
+         44                  memcpy(old+n, old, (n - memory.unmapped_ids.head)*memory.unmapped_ids.array.size);
+      1,145  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+      6,403  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memcpy.S:memcpy (5x)
+         35                  memory.unmapped_ids.head += n;
           .          }
           .  }
-          .  static void exe_loadval(UM machine, UM_Instruction i) {
- 97,661,100          register_store(machine, i.rA, i.value);
-716,181,400  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/virtualization.c:register_store (32553700x)
+          .  
+          .  static inline void Queue_free() {
+          3          free(memory.unmapped_ids.array.values);
+    580,470  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1x)
           .  }
-
---------------------------------------------------------------------------------
--- Auto-annotated source: virtualization.c
---------------------------------------------------------------------------------
-         Ir 
-
-          .  #include "virtualization.h"
           .  
-254,416,996  Word register_store(UM machine, unsigned id, Word value) {
-190,812,747  	if (id > 7) {
-          .  		fprintf(stderr, "Register %d does not exist."
-          .  			" Must be in [0, 7]!\n", id);
-          .                  exit(1);
-          .  	}
-190,812,747  	Word to_return = register_load(machine, id);
-381,625,494  => virtualization.c:register_load (63604249x)
+          .  /* ARRAY */
           .  
-127,208,498  	machine->registers[id] = value;
+          .  static inline void Array_new(unsigned hint, size_t size) {
+          4          memory.seg_map.values = malloc(size * hint);
+        174  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc (1x)
+          1          memory.seg_map.length = hint;
+          1          memory.seg_map.size = size;
+          .  }
           .  
-          .  	return to_return;
-254,416,996  }
+          .  static inline void* Array_at(unsigned pos) {
+          .          return memory.seg_map.values + (pos * memory.seg_map.size);
+          .  }
           .  
-          .  Word register_load(UM machine, unsigned id) {
-507,416,830  	if (id > 7) {
-          .  		fprintf(stderr, "Register %d does not exist. Must be in"
-          .  		" [0, 7]!\n", id);
-          .                  exit(1);
-          .  	}
-761,125,245  	return machine->registers[id];
-253,708,415  }
-
---------------------------------------------------------------------------------
--- Auto-annotated source: controller.c
---------------------------------------------------------------------------------
-         Ir 
-
-          .  #include "controller.h"
-          .  #include "memory.h"
-          .  #include "p_load.h"
-          .  #include "execute.h"
+          .  static inline void Array_resize() {
+         10          memory.seg_map.length *= SCALEFACTOR;
+         34          memory.seg_map.values = realloc(memory.seg_map.values, memory.seg_map.size*memory.seg_map.length);
+     72,004  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:realloc (5x)
+      1,092  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
+          .  }
           .  
-          .  #define NUM_REGISTERS 8
-          .  
-          1  UM UM_new() {
-          8          UM machine = malloc(sizeof(struct UM_T));
-      1,252  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
-        192  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc (1x)
-          9          machine->registers = calloc(sizeof(Word)*NUM_REGISTERS, sizeof(Word));
-        258  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:calloc (1x)
-      1,210  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/elf/../sysdeps/x86_64/dl-trampoline.S:_dl_runtime_resolve (1x)
-          3          machine->memory = SegmentBlock_new();
-      2,018  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/memory.c:SegmentBlock_new (1x)
-          1          machine->pc = 0;
-          1          machine->program_length = 0;
-          .          return machine;
-          3  }
-          .  
-          2  bool UM_run(UM machine, FILE* program) {
-          1          load(machine, program);
-  6,779,483  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/p_load.c:load (1x)
-170,141,048          while(machine->pc < machine->program_length) {
-170,141,044                  execute(machine);
-12,284,407,170  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/execute.c:execute (85070522x)
-255,211,566                  machine->pc++;
-          .          }
-          .          return true;
-          3  }
-          .  
-          2  bool UM_kill(UM* machine) {
-          3          SegmentBlock_free(&((*machine)->memory));
-    560,503  => /h/sschoe05/Desktop/comp40-2/hw6/Universal-Machine/memory.c:SegmentBlock_free (1x)
-          4          free((*machine)->registers);
-        114  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1x)
-          3          free(*machine);
-         84  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1x)
-          .          return true;
-          3  }
+          .  static inline void Array_free() {
+          3          free(memory.seg_map.values);
+         36  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:free (1x)
+          .  }
 
 --------------------------------------------------------------------------------
 -- Auto-annotated source: /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c
@@ -886,7 +841,7 @@ Auto-annotation:  on
          .  
          .    unsigned long   sum;            /* for updating stats */
          .  
-        72    size_t          pagemask  = mp_.pagesize - 1;
+        69    size_t          pagemask  = mp_.pagesize - 1;
          .    bool            tried_mmap = false;
          .  
          .  
@@ -899,7 +854,7 @@ Auto-annotation:  on
          .      rather than expanding top.
          .    */
          .  
-        54    if ((unsigned long)(nb) >= (unsigned long)(mp_.mmap_threshold) &&
+        52    if ((unsigned long)(nb) >= (unsigned long)(mp_.mmap_threshold) &&
          .        (mp_.n_mmaps < mp_.n_mmaps_max)) {
          .  
          .      char* mm;             /* return value from mmap call*/
@@ -963,7 +918,7 @@ Auto-annotation:  on
          .  
          .  	check_chunk(av, p);
          .  
-        48  	return chunk2mem(p);
+        46  	return chunk2mem(p);
          .        }
          .      }
          .    }
@@ -973,7 +928,7 @@ Auto-annotation:  on
          .  
          .    old_top  = av->top;
          .    old_size = chunksize(old_top);
-        22    old_end  = (char*)(chunk_at_offset(old_top, old_size));
+        21    old_end  = (char*)(chunk_at_offset(old_top, old_size));
          .  
          .    brk = snd_brk = (char*)(MORECORE_FAILURE);
          .  
@@ -992,7 +947,7 @@ Auto-annotation:  on
          .  #endif
          .  
          .  
-        66    if (av != &main_arena) {
+        63    if (av != &main_arena) {
          .  
          .      heap_info *old_heap, *heap;
          .      size_t old_heap_size;
@@ -1011,7 +966,7 @@ Auto-annotation:  on
          .  
          .    /* Request enough space for nb + pad + overhead */
          .  
-       132    size = nb + mp_.top_pad + MINSIZE;
+       126    size = nb + mp_.top_pad + MINSIZE;
          .  
          .    /*
          .      If contiguous, we can subtract out existing space that we hope to
@@ -1019,7 +974,7 @@ Auto-annotation:  on
          .      we don't actually get contiguous space.
          .    */
          .  
-        22    if (contiguous(av))
+        21    if (contiguous(av))
          .      size -= old_size;
          .  
          .    /*
@@ -1030,7 +985,7 @@ Auto-annotation:  on
          .      previous calls. Otherwise, we correct to page-align below.
          .    */
          .  
-       154    size = (size + pagemask) & ~pagemask;
+       147    size = (size + pagemask) & ~pagemask;
          .  
          .    /*
          .      Don't try to call MORECORE if argument is so big as to appear
@@ -1038,14 +993,14 @@ Auto-annotation:  on
          .      below even if we cannot call MORECORE.
          .    */
          .  
-        44    if (size > 0)
-       132      brk = (char*)(MORECORE(size));
-     1,027  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/morecore.c:__default_morecore (22x)
+        42    if (size > 0)
+       126      brk = (char*)(MORECORE(size));
+       981  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/morecore.c:__default_morecore (21x)
          .  
-        88    if (brk != (char*)(MORECORE_FAILURE)) {
+        84    if (brk != (char*)(MORECORE_FAILURE)) {
          .      /* Call the `morecore' hook if necessary.  */
-        44      void (*hook) (void) = force_reg (__after_morecore_hook);
-        44      if (__builtin_expect (hook != NULL, 0))
+        42      void (*hook) (void) = force_reg (__after_morecore_hook);
+        42      if (__builtin_expect (hook != NULL, 0))
          .        (*hook) ();
          .    } else {
          .    /*
@@ -1083,16 +1038,16 @@ Auto-annotation:  on
          .    }
          .  
          .    if (brk != (char*)(MORECORE_FAILURE)) {
-        44      if (mp_.sbrk_base == 0)
+        42      if (mp_.sbrk_base == 0)
          1        mp_.sbrk_base = brk;
-        66      av->system_mem += size;
+        63      av->system_mem += size;
          .  
          .      /*
          .        If MORECORE extends previous space, we can likewise extend top size.
          .      */
          .  
-        86      if (brk == old_end && snd_brk == (char*)(MORECORE_FAILURE))
-       105        set_head(old_top, (size + old_size) | PREV_INUSE);
+        82      if (brk == old_end && snd_brk == (char*)(MORECORE_FAILURE))
+       100        set_head(old_top, (size + old_size) | PREV_INUSE);
          .  
          7      else if (contiguous(av) && old_size && brk < old_end) {
          .        /* Oops!  Someone else killed our space..  Can't touch anything.  */
@@ -1218,8 +1173,8 @@ Auto-annotation:  on
          .  
          .    } /* if (av !=  &main_arena) */
          .  
-        66    if ((unsigned long)av->system_mem > (unsigned long)(av->max_system_mem))
-        22      av->max_system_mem = av->system_mem;
+        63    if ((unsigned long)av->system_mem > (unsigned long)(av->max_system_mem))
+        21      av->max_system_mem = av->system_mem;
          .    check_malloc_state(av);
          .  
          .    /* finally, do the allocation */
@@ -1227,14 +1182,14 @@ Auto-annotation:  on
          .    size = chunksize(p);
          .  
          .    /* check that one of the above allocation paths succeeded */
-        88    if ((unsigned long)(size) >= (unsigned long)(nb + MINSIZE)) {
+        84    if ((unsigned long)(size) >= (unsigned long)(nb + MINSIZE)) {
          .      remainder_size = size - nb;
-        22      remainder = chunk_at_offset(p, nb);
-        22      av->top = remainder;
-       198      set_head(p, nb | PREV_INUSE | (av != &main_arena ? NON_MAIN_ARENA : 0));
-        66      set_head(remainder, remainder_size | PREV_INUSE);
+        21      remainder = chunk_at_offset(p, nb);
+        21      av->top = remainder;
+       189      set_head(p, nb | PREV_INUSE | (av != &main_arena ? NON_MAIN_ARENA : 0));
+        63      set_head(remainder, remainder_size | PREV_INUSE);
          .      check_malloced_chunk(av, p, nb);
-        22      return chunk2mem(p);
+        21      return chunk2mem(p);
          .    }
          .  
          .    /* catch all failure paths */
@@ -1253,22 +1208,57 @@ Auto-annotation:  on
          .    char* new_brk;         /* address returned by post-check sbrk call */
          .    size_t pagesz;
          .  
-         1    pagesz = mp_.pagesize;
+         2    pagesz = mp_.pagesize;
          .    top_size = chunksize(av->top);
          .  
          .    /* Release in pagesize units, keeping at least one page */
-         7    extra = ((top_size - pad - MINSIZE + (pagesz-1)) / pagesz - 1) * pagesz;
+        14    extra = ((top_size - pad - MINSIZE + (pagesz-1)) / pagesz - 1) * pagesz;
          .  
-         2    if (extra > 0) {
+         4    if (extra > 0) {
          .  
          .      /*
          .        Only proceed if end of memory is where we last set it.
          .        This avoids problems if there were foreign sbrk calls.
          .      */
-         .      current_brk = (char*)(MORECORE(0));
-         .      if (current_brk == (char*)(av->top) + top_size) {
+         8      current_brk = (char*)(MORECORE(0));
+        54  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/morecore.c:__default_morecore (2x)
+         8      if (current_brk == (char*)(av->top) + top_size) {
          .  
--- line 3483 ----------------------------------------
+         .        /*
+         .  	Attempt to release memory. We ignore MORECORE return value,
+         .  	and instead call again to find out where new end of memory is.
+         .  	This avoids problems if first call releases less than we asked,
+         .  	of if failure somehow altered brk value. (We could still
+         .  	encounter problems if it altered brk in some very bad way,
+         .  	but the only thing we can do is adjust anyway, which will cause
+         .  	some downstream failure.)
+         .        */
+         .  
+         6        MORECORE(-extra);
+        98  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/morecore.c:__default_morecore (2x)
+         .        /* Call the `morecore' hook if necessary.  */
+         4        void (*hook) (void) = force_reg (__after_morecore_hook);
+         4        if (__builtin_expect (hook != NULL, 0))
+         .  	(*hook) ();
+         4        new_brk = (char*)(MORECORE(0));
+        54  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/morecore.c:__default_morecore (2x)
+         .  
+         4        if (new_brk != (char*)MORECORE_FAILURE) {
+         .  	released = (long)(current_brk - new_brk);
+         .  
+         4  	if (released != 0) {
+         .  	  /* Success. Adjust top. */
+         2  	  av->system_mem -= released;
+        10  	  set_head(av->top, (top_size - released) | PREV_INUSE);
+         .  	  check_malloc_state(av);
+         .  	  return 1;
+         .  	}
+         .        }
+         .      }
+         .    }
+         .    return 0;
+         .  }
+-- line 3515 ----------------------------------------
 -- line 3527 ----------------------------------------
          .    INTERNAL_SIZE_T size = chunksize(p);
          .  
@@ -1305,58 +1295,7 @@ Auto-annotation:  on
          .  #if HAVE_MREMAP
          .  
          .  static mchunkptr
-         .  internal_function
-         .  #if __STD_C
-         .  mremap_chunk(mchunkptr p, size_t new_size)
-         .  #else
-         .  mremap_chunk(p, new_size) mchunkptr p; size_t new_size;
-         .  #endif
-         .  {
-        10    size_t page_mask = mp_.pagesize - 1;
-         5    INTERNAL_SIZE_T offset = p->prev_size;
-         .    INTERNAL_SIZE_T size = chunksize(p);
-         .    char *cp;
-         .  
-         .    assert (chunk_is_mmapped(p));
-         .  #if 0
-         .    assert(! ((char*)p >= mp_.sbrk_base && (char*)p < mp_.sbrk_base + mp_.sbrked_mem));
-         .    assert((mp_.n_mmaps > 0));
-         .  #endif
-         .    assert(((size + offset) & (mp_.pagesize-1)) == 0);
-         .  
-         .    /* Note the extra SIZE_SZ overhead as in mmap_chunk(). */
-        20    new_size = (new_size + offset + SIZE_SZ + page_mask) & ~page_mask;
-         .  
-         .    /* No need to remap if the number of pages does not change.  */
-        15    if (size + offset == new_size)
-         .      return p;
-         .  
-        45    cp = (char *)mremap((char *)p - offset, size + offset, new_size,
-        30  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/misc/../sysdeps/unix/syscall-template.S:mremap (5x)
-         .  		      MREMAP_MAYMOVE);
-         .  
-        20    if (cp == MAP_FAILED) return 0;
-         .  
-         5    p = (mchunkptr)(cp + offset);
-         .  
-         .    assert(aligned_OK(chunk2mem(p)));
-         .  
-         .    assert((p->prev_size == offset));
-        25    set_head(p, (new_size - offset)|IS_MMAPPED);
-         .  
-         .    mp_.mmapped_mem -= size + offset;
-        15    mp_.mmapped_mem += new_size;
-        10    if ((unsigned long)mp_.mmapped_mem > (unsigned long)mp_.max_mmapped_mem)
-        10      mp_.max_mmapped_mem = mp_.mmapped_mem;
-         .  #ifdef NO_THREADS
-         .    if ((unsigned long)(mp_.mmapped_mem + arena_mem + main_arena.system_mem) >
-         .        mp_.max_total_mem)
-         .      mp_.max_total_mem = mp_.mmapped_mem + arena_mem + main_arena.system_mem;
-         .  #endif
-         .    return p;
-         .  }
-         .  
--- line 3610 ----------------------------------------
+-- line 3560 ----------------------------------------
 -- line 3611 ----------------------------------------
          .  #endif /* HAVE_MREMAP */
          .  
@@ -1366,17 +1305,17 @@ Auto-annotation:  on
          .  
          .  Void_t*
          .  public_mALLOc(size_t bytes)
-        30  {
+        20  {
          .    mstate ar_ptr;
          .    Void_t *victim;
          .  
          .    __malloc_ptr_t (*hook) (size_t, __const __malloc_ptr_t)
-        12      = force_reg (__malloc_hook);
-        12    if (__builtin_expect (hook != NULL, 0))
+         8      = force_reg (__malloc_hook);
+         8    if (__builtin_expect (hook != NULL, 0))
          2      return (*hook)(bytes, RETURN_ADDRESS (0));
-    60,861  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/hooks.c:malloc_hook_ini (1x)
+    60,855  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/hooks.c:malloc_hook_ini (1x)
          .  
-        10    arena_lookup(ar_ptr);
+         6    arena_lookup(ar_ptr);
          .  #if 0
          .    // XXX We need double-word CAS and fastbins must be extended to also
          .    // XXX hold a generation counter for each entry.
@@ -1395,12 +1334,12 @@ Auto-annotation:  on
          .    }
          .  #endif
          .  
-        40    arena_lock(ar_ptr, bytes);
+        24    arena_lock(ar_ptr, bytes);
          .    if(!ar_ptr)
          .      return 0;
-        20    victim = _int_malloc(ar_ptr, bytes);
-       610  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc (4x)
-        10    if(!victim) {
+        12    victim = _int_malloc(ar_ptr, bytes);
+       278  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc (2x)
+         6    if(!victim) {
          .      /* Maybe the failure is due to running out of mmapped areas. */
          .      if(ar_ptr != &main_arena) {
          .        (void)mutex_unlock(&ar_ptr->mutex);
@@ -1419,11 +1358,11 @@ Auto-annotation:  on
          .  #endif
          .      }
          .    } else
-        20      (void)mutex_unlock(&ar_ptr->mutex);
+        12      (void)mutex_unlock(&ar_ptr->mutex);
          .    assert(!victim || chunk_is_mmapped(mem2chunk(victim)) ||
          .  	 ar_ptr == arena_for_chunk(mem2chunk(victim)));
          .    return victim;
-        34  }
+        22  }
          .  #ifdef libc_hidden_def
          .  libc_hidden_def(public_mALLOc)
          .  #endif
@@ -1435,19 +1374,19 @@ Auto-annotation:  on
          .    mchunkptr p;                          /* chunk corresponding to mem */
          .  
          .    void (*hook) (__malloc_ptr_t, __const __malloc_ptr_t)
- 2,820,108      = force_reg (__free_hook);
- 2,820,108    if (__builtin_expect (hook != NULL, 0)) {
+ 2,820,098      = force_reg (__free_hook);
+ 2,820,098    if (__builtin_expect (hook != NULL, 0)) {
          .      (*hook)(mem, RETURN_ADDRESS (0));
          .      return;
          .    }
          .  
- 2,820,108    if (mem == 0)                              /* free(0) has no effect */
+ 2,820,098    if (mem == 0)                              /* free(0) has no effect */
          .      return;
          .  
- 1,410,054    p = mem2chunk(mem);
+ 1,410,049    p = mem2chunk(mem);
          .  
          .  #if HAVE_MMAP
- 4,230,162    if (chunk_is_mmapped(p))                       /* release mmapped memory. */
+ 4,230,147    if (chunk_is_mmapped(p))                       /* release mmapped memory. */
          .    {
          .      /* see if the dynamic brk/mmap threshold needs adjusting */
         14      if (!mp_.no_dyn_threshold
@@ -1462,10 +1401,10 @@ Auto-annotation:  on
          .    }
          .  #endif
          .  
- 4,230,156    ar_ptr = arena_for_chunk(p);
+ 4,230,141    ar_ptr = arena_for_chunk(p);
          .  #ifdef ATOMIC_FASTBINS
- 2,820,104    _int_free(ar_ptr, p, 0);
-105,702,842  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_free (1410052x)
+ 2,820,094    _int_free(ar_ptr, p, 0);
+107,281,269  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_free (1410047x)
          .  #else
          .  # if THREAD_STATS
          .    if(!mutex_trylock(&ar_ptr->mutex))
@@ -1484,55 +1423,55 @@ Auto-annotation:  on
          .  
          .  Void_t*
          .  public_rEALLOc(Void_t* oldmem, size_t bytes)
-       243  {
+        99  {
          .    mstate ar_ptr;
          .    INTERNAL_SIZE_T    nb;      /* padded request size */
          .  
          .    Void_t* newp;             /* chunk to return */
          .  
          .    __malloc_ptr_t (*hook) (__malloc_ptr_t, size_t, __const __malloc_ptr_t) =
-        54      force_reg (__realloc_hook);
-        54    if (__builtin_expect (hook != NULL, 0))
+        22      force_reg (__realloc_hook);
+        22    if (__builtin_expect (hook != NULL, 0))
          2      return (*hook)(oldmem, bytes, RETURN_ADDRESS (0));
-     1,424  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/hooks.c:realloc_hook_ini (1x)
+     1,658  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/hooks.c:realloc_hook_ini (1x)
          .  
          .  #if REALLOC_ZERO_BYTES_FREES
-        52    if (bytes == 0 && oldmem != NULL) { public_fREe(oldmem); return 0; }
+        20    if (bytes == 0 && oldmem != NULL) { public_fREe(oldmem); return 0; }
          .  #endif
          .  
          .    /* realloc of null is supposed to be same as malloc */
-        52    if (oldmem == 0) return public_mALLOc(bytes);
+        20    if (oldmem == 0) return public_mALLOc(bytes);
          .  
          .    /* chunk corresponding to oldmem */
-        26    const mchunkptr oldp    = mem2chunk(oldmem);
+        10    const mchunkptr oldp    = mem2chunk(oldmem);
          .    /* its size */
-        78    const INTERNAL_SIZE_T oldsize = chunksize(oldp);
+        30    const INTERNAL_SIZE_T oldsize = chunksize(oldp);
          .  
          .    /* Little security check which won't hurt performance: the
          .       allocator never wrapps around at the end of the address space.
          .       Therefore we can exclude some size values which might appear
          .       here by accident or by "design" from some intruder.  */
-       156    if (__builtin_expect ((uintptr_t) oldp > (uintptr_t) -oldsize, 0)
+        60    if (__builtin_expect ((uintptr_t) oldp > (uintptr_t) -oldsize, 0)
          .        || __builtin_expect (misaligned_chunk (oldp), 0))
          .      {
          .        malloc_printerr (check_action, "realloc(): invalid pointer", oldmem);
          .        return NULL;
          .      }
          .  
-       208    checked_request2size(bytes, nb);
+        80    checked_request2size(bytes, nb);
          .  
          .  #if HAVE_MMAP
-        52    if (chunk_is_mmapped(oldp))
+        20    if (chunk_is_mmapped(oldp))
          .    {
          .      Void_t* newmem;
          .  
          .  #if HAVE_MREMAP
          .      newp = mremap_chunk(oldp, nb);
-        10      if(newp) return chunk2mem(newp);
+         .      if(newp) return chunk2mem(newp);
          .  #endif
          .      /* Note the extra SIZE_SZ overhead. */
-         .      if(oldsize - SIZE_SZ >= nb) return oldmem; /* do nothing */
-         .      /* Must alloc, copy, free. */
+-- line 3798 ----------------------------------------
+-- line 3801 ----------------------------------------
          .      newmem = public_mALLOc(bytes);
          .      if (newmem == 0) return 0; /* propagate failure */
          .      MALLOC_COPY(newmem, oldmem, oldsize - 2*SIZE_SZ);
@@ -1541,7 +1480,7 @@ Auto-annotation:  on
          .    }
          .  #endif
          .  
-        63    ar_ptr = arena_for_chunk(oldp);
+        30    ar_ptr = arena_for_chunk(oldp);
          .  #if THREAD_STATS
          .    if(!mutex_trylock(&ar_ptr->mutex))
          .      ++(ar_ptr->stat_lock_direct);
@@ -1550,7 +1489,7 @@ Auto-annotation:  on
          .      ++(ar_ptr->stat_lock_wait);
          .    }
          .  #else
-       126    (void)mutex_lock(&ar_ptr->mutex);
+        60    (void)mutex_lock(&ar_ptr->mutex);
          .  #endif
          .  
          .  #if !defined NO_THREADS && !defined PER_THREAD
@@ -1558,14 +1497,14 @@ Auto-annotation:  on
          .    tsd_setspecific(arena_key, (Void_t *)ar_ptr);
          .  #endif
          .  
-       126    newp = _int_realloc(ar_ptr, oldp, oldsize, nb);
- 1,048,871  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_realloc (20x)
+        60    newp = _int_realloc(ar_ptr, oldp, oldsize, nb);
+ 1,082,308  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_realloc (9x)
          .  
-        84    (void)mutex_unlock(&ar_ptr->mutex);
+        40    (void)mutex_unlock(&ar_ptr->mutex);
          .    assert(!newp || chunk_is_mmapped(mem2chunk(newp)) ||
          .  	 ar_ptr == arena_for_chunk(mem2chunk(newp)));
          .  
-        63    if (newp == NULL)
+        30    if (newp == NULL)
          .      {
          .        /* Try harder to allocate memory in other arenas.  */
          .        newp = public_mALLOc(bytes);
@@ -1584,7 +1523,7 @@ Auto-annotation:  on
          .      }
          .  
          .    return newp;
-       241  }
+        97  }
          .  #ifdef libc_hidden_def
          .  libc_hidden_def (public_rEALLOc)
          .  #endif
@@ -1603,7 +1542,7 @@ Auto-annotation:  on
          .  
          .  Void_t*
          .  public_cALLOc(size_t n, size_t elem_size)
- 9,903,866  {
+ 9,903,845  {
          .    mstate av;
          .    mchunkptr oldtop, p;
          .    INTERNAL_SIZE_T bytes, sz, csz, oldtopsize;
@@ -1613,10 +1552,10 @@ Auto-annotation:  on
          .    INTERNAL_SIZE_T* d;
          .  
          .    /* size_t is unsigned so the behavior on overflow is defined.  */
- 2,829,676    bytes = n * elem_size;
+ 2,829,670    bytes = n * elem_size;
          .  #define HALF_INTERNAL_SIZE_T \
          .    (((INTERNAL_SIZE_T) 1) << (8 * sizeof (INTERNAL_SIZE_T) / 2))
- 7,074,190    if (__builtin_expect ((n | elem_size) >= HALF_INTERNAL_SIZE_T, 0)) {
+ 7,074,175    if (__builtin_expect ((n | elem_size) >= HALF_INTERNAL_SIZE_T, 0)) {
          .      if (elem_size != 0 && bytes / elem_size != n) {
          .        MALLOC_FAILURE_ACTION;
          .        return 0;
@@ -1624,8 +1563,8 @@ Auto-annotation:  on
          .    }
          .  
          .    __malloc_ptr_t (*hook) __MALLOC_PMT ((size_t, __const __malloc_ptr_t)) =
- 2,829,676      force_reg (__malloc_hook);
- 2,829,676    if (__builtin_expect (hook != NULL, 0)) {
+ 2,829,670      force_reg (__malloc_hook);
+ 2,829,670    if (__builtin_expect (hook != NULL, 0)) {
          .      sz = bytes;
          .      mem = (*hook)(sz, RETURN_ADDRESS (0));
          .      if(mem == 0)
@@ -1640,36 +1579,36 @@ Auto-annotation:  on
          .  
          .    sz = bytes;
          .  
-14,148,380    arena_get(av, sz);
+14,148,350    arena_get(av, sz);
          .    if(!av)
          .      return 0;
          .  
          .    /* Check if we hand out the top chunk, in which case there may be no
          .       need to clear. */
          .  #if MORECORE_CLEARS
- 1,414,838    oldtop = top(av);
- 2,829,676    oldtopsize = chunksize(top(av));
+ 1,414,835    oldtop = top(av);
+ 2,829,670    oldtopsize = chunksize(top(av));
          .  #if MORECORE_CLEARS < 2
          .    /* Only newly allocated memory is guaranteed to be cleared.  */
          .    if (av == &main_arena &&
          .        oldtopsize < mp_.sbrk_base + av->max_system_mem - (char *)oldtop)
          .      oldtopsize = (mp_.sbrk_base + av->max_system_mem - (char *)oldtop);
          .  #endif
- 4,244,514    if (av != &main_arena)
+ 4,244,505    if (av != &main_arena)
          .      {
          .        heap_info *heap = heap_for_ptr (oldtop);
          .        if (oldtopsize < (char *) heap + heap->mprotect_size - (char *) oldtop)
          .  	oldtopsize = (char *) heap + heap->mprotect_size - (char *) oldtop;
          .      }
          .  #endif
- 5,659,352    mem = _int_malloc(av, sz);
-95,936,040  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc (1414838x)
+ 5,659,340    mem = _int_malloc(av, sz);
+98,374,718  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc (1414835x)
          .  
          .  
          .    assert(!mem || chunk_is_mmapped(mem2chunk(mem)) ||
          .  	 av == arena_for_chunk(mem2chunk(mem)));
          .  
- 2,829,676    if (mem == 0) {
+ 2,829,670    if (mem == 0) {
          .      /* Maybe the failure is due to running out of mmapped areas. */
          .      if(av != &main_arena) {
          .        (void)mutex_unlock(&av->mutex);
@@ -1688,12 +1627,12 @@ Auto-annotation:  on
          .      }
          .      if (mem == 0) return 0;
          .    } else
- 5,659,352      (void)mutex_unlock(&av->mutex);
- 1,414,838    p = mem2chunk(mem);
+ 5,659,340      (void)mutex_unlock(&av->mutex);
+ 1,414,835    p = mem2chunk(mem);
          .  
          .    /* Two optional cases in which clearing not necessary */
          .  #if HAVE_MMAP
- 4,244,514    if (chunk_is_mmapped (p))
+ 4,244,505    if (chunk_is_mmapped (p))
          .      {
          3        if (__builtin_expect (perturb_byte, 0))
          .  	MALLOC_ZERO (mem, sz);
@@ -1701,10 +1640,10 @@ Auto-annotation:  on
          .      }
          .  #endif
          .  
- 1,414,837    csz = chunksize(p);
+ 1,414,834    csz = chunksize(p);
          .  
          .  #if MORECORE_CLEARS
- 7,115,789    if (perturb_byte == 0 && (p == oldtop && csz > oldtopsize)) {
+ 7,135,037    if (perturb_byte == 0 && (p == oldtop && csz > oldtopsize)) {
          .      /* clear only the bytes from non-freshly-sbrked memory */
          .      csz = oldtopsize;
          .    }
@@ -1714,34 +1653,34 @@ Auto-annotation:  on
          .       contents have an odd number of INTERNAL_SIZE_T-sized words;
          .       minimally 3.  */
          .    d = (INTERNAL_SIZE_T*)mem;
- 1,414,837    clearsize = csz - SIZE_SZ;
- 2,829,674    nclears = clearsize / sizeof(INTERNAL_SIZE_T);
+ 1,414,834    clearsize = csz - SIZE_SZ;
+ 2,829,668    nclears = clearsize / sizeof(INTERNAL_SIZE_T);
          .    assert(nclears >= 3);
          .  
- 2,829,674    if (nclears > 9)
- 2,401,492      MALLOC_ZERO(d, clearsize);
-25,454,978  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memset.S:__GI_memset (600373x)
+ 2,829,668    if (nclears > 9)
+ 2,401,940      MALLOC_ZERO(d, clearsize);
+25,457,444  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memset.S:__GI_memset (600485x)
          .  
          .    else {
-   814,464      *(d+0) = 0;
-   814,464      *(d+1) = 0;
-   814,464      *(d+2) = 0;
- 1,628,928      if (nclears > 4) {
-   814,462        *(d+3) = 0;
-   814,462        *(d+4) = 0;
- 1,628,924        if (nclears > 6) {
-   814,456  	*(d+5) = 0;
-   814,456  	*(d+6) = 0;
- 1,628,912  	if (nclears > 8) {
-   811,278  	  *(d+7) = 0;
- 1,622,556  	  *(d+8) = 0;
+   814,349      *(d+0) = 0;
+   814,349      *(d+1) = 0;
+   814,349      *(d+2) = 0;
+ 1,628,698      if (nclears > 4) {
+   814,347        *(d+3) = 0;
+   814,347        *(d+4) = 0;
+ 1,628,694        if (nclears > 6) {
+   814,345  	*(d+5) = 0;
+   814,345  	*(d+6) = 0;
+ 1,628,690  	if (nclears > 8) {
+   811,170  	  *(d+7) = 0;
+ 1,622,340  	  *(d+8) = 0;
          .  	}
          .        }
          .      }
          .    }
          .  
          .    return mem;
-12,733,542  }
+12,733,515  }
          .  
          .  #ifndef _LIBC
          .  
@@ -1760,7 +1699,7 @@ Auto-annotation:  on
          .  
          .  static Void_t*
          .  _int_malloc(mstate av, size_t bytes)
-12,733,758  {
+12,733,623  {
          .    INTERNAL_SIZE_T nb;               /* normalized request size */
          .    unsigned int    idx;              /* associated bin index */
          .    mbinptr         bin;              /* associated bin */
@@ -1779,7 +1718,7 @@ Auto-annotation:  on
          .      aligned.
          .    */
          .  
-11,318,896    checked_request2size(bytes, nb);
+11,318,776    checked_request2size(bytes, nb);
          .  
          .    /*
          .      If the size qualifies as a fastbin, first check corresponding bin.
@@ -1787,24 +1726,24 @@ Auto-annotation:  on
          .      can try it without checking, which saves some time on this fast path.
          .    */
          .  
- 2,829,724    if ((unsigned long)(nb) <= (unsigned long)(get_max_fast ())) {
- 3,541,677      idx = fastbin_index(nb);
- 3,461,049      mfastbinptr* fb = &fastbin (av, idx);
+ 2,829,694    if ((unsigned long)(nb) <= (unsigned long)(get_max_fast ())) {
+ 3,541,665      idx = fastbin_index(nb);
+ 3,354,871      mfastbinptr* fb = &fastbin (av, idx);
          .  #ifdef ATOMIC_FASTBINS
- 1,180,559      mchunkptr pp = *fb;
+ 1,180,555      mchunkptr pp = *fb;
          .      do
          .        {
          .  	victim = pp;
- 4,641,608  	if (victim == NULL)
+ 4,535,426  	if (victim == NULL)
          .  	  break;
          .        }
- 6,841,470      while ((pp = catomic_compare_and_exchange_val_acq (fb, victim->fd, victim))
- 3,420,735  	   != victim);
+ 6,522,948      while ((pp = catomic_compare_and_exchange_val_acq (fb, victim->fd, victim))
+ 3,261,474  	   != victim);
          .  #else
          .      victim = *fb;
          .  #endif
          .      if (victim != 0) {
- 5,701,225        if (__builtin_expect (fastbin_index (chunksize (victim)) != idx, 0))
+ 5,435,790        if (__builtin_expect (fastbin_index (chunksize (victim)) != idx, 0))
          .  	{
          .  	  errstr = "malloc(): memory corruption (fast)";
          .  	errout:
@@ -1823,26 +1762,26 @@ Auto-annotation:  on
          .      anyway, so we can check now, which is faster.)
          .    */
          .  
-   549,234    if (in_smallbin_range(nb)) {
-   823,761      idx = smallbin_index(nb);
- 1,098,348      bin = bin_at(av,idx);
+   655,378    if (in_smallbin_range(nb)) {
+   983,007      idx = smallbin_index(nb);
+ 1,310,676      bin = bin_at(av,idx);
          .  
-   823,761      if ( (victim = last(bin)) != bin) {
-   342,856        if (victim == 0) /* initialization check */
+   983,007      if ( (victim = last(bin)) != bin) {
+   418,978        if (victim == 0) /* initialization check */
          7  	malloc_consolidate(av);
        670  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc_consolidate (1x)
          .        else {
-   171,427  	bck = victim->bk;
-   342,854  	if (__builtin_expect (bck->fd != victim, 0))
+   209,488  	bck = victim->bk;
+   418,976  	if (__builtin_expect (bck->fd != victim, 0))
          .  	  {
          .  	    errstr = "malloc(): smallbin double linked list corrupted";
          .  	    goto errout;
          .  	  }
-   171,427  	set_inuse_bit_at_offset(victim, nb);
-   171,427  	bin->bk = bck;
-   171,427  	bck->fd = bin;
+   209,488  	set_inuse_bit_at_offset(victim, nb);
+   209,488  	bin->bk = bck;
+   209,488  	bck->fd = bin;
          .  
-   514,281  	if (av != &main_arena)
+   628,464  	if (av != &main_arena)
          .  	  victim->size |= NON_MAIN_ARENA;
          .  	check_malloced_chunk(av, victim, nb);
          .  	void *p = chunk2mem(victim);
@@ -1861,10 +1800,10 @@ Auto-annotation:  on
          .    */
          .  
          .    else {
-       446      idx = largebin_index(nb);
-        90      if (have_fastchunks(av))
-        18        malloc_consolidate(av);
-   612,252  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc_consolidate (3x)
+       255      idx = largebin_index(nb);
+        60      if (have_fastchunks(av))
+        30        malloc_consolidate(av);
+   934,283  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc_consolidate (5x)
          .    }
          .  
          .    /*
@@ -1883,17 +1822,17 @@ Auto-annotation:  on
          .    for(;;) {
          .  
          .      int iters = 0;
- 1,084,127      while ( (victim = unsorted_chunks(av)->bk) != unsorted_chunks(av)) {
-   268,049        bck = victim->bk;
- 1,072,196        if (__builtin_expect (victim->size <= 2 * SIZE_SZ, 0)
-   268,049  	  || __builtin_expect (victim->size > av->system_mem, 0))
+ 1,251,077      while ( (victim = unsorted_chunks(av)->bk) != unsorted_chunks(av)) {
+   313,126        bck = victim->bk;
+ 1,252,504        if (__builtin_expect (victim->size <= 2 * SIZE_SZ, 0)
+   313,126  	  || __builtin_expect (victim->size > av->system_mem, 0))
          .  	{
          .  	  void *p = chunk2mem(victim);
          .  	  mutex_unlock(&av->mutex);
          .  	  malloc_printerr (check_action, "malloc(): memory corruption", p);
-   103,190  	  mutex_lock(&av->mutex);
+   118,201  	  mutex_lock(&av->mutex);
          .  	}
-   268,049        size = chunksize(victim);
+   313,126        size = chunksize(victim);
          .  
          .        /*
          .  	 If a small request, try to use last remainder if it is the
@@ -1903,44 +1842,44 @@ Auto-annotation:  on
          .  	 no exact fit for a small chunk.
          .        */
          .  
- 1,354,644        if (in_smallbin_range(nb) &&
+ 1,618,210        if (in_smallbin_range(nb) &&
          .  	  bck == unsorted_chunks(av) &&
-    71,312  	  victim == av->last_remainder &&
-   206,380  	  (unsigned long)(size) > (unsigned long)(nb + MINSIZE)) {
+    92,076  	  victim == av->last_remainder &&
+   236,402  	  (unsigned long)(size) > (unsigned long)(nb + MINSIZE)) {
          .  
          .  	/* split and reattach remainder */
-    62,081  	remainder_size = size - nb;
-   124,162  	remainder = chunk_at_offset(victim, nb);
-   124,162  	unsorted_chunks(av)->bk = unsorted_chunks(av)->fd = remainder;
-    62,081  	av->last_remainder = remainder;
-   124,162  	remainder->bk = remainder->fd = unsorted_chunks(av);
-   124,162  	if (!in_smallbin_range(remainder_size))
+    88,298  	remainder_size = size - nb;
+   176,596  	remainder = chunk_at_offset(victim, nb);
+   176,596  	unsorted_chunks(av)->bk = unsorted_chunks(av)->fd = remainder;
+    88,298  	av->last_remainder = remainder;
+   176,596  	remainder->bk = remainder->fd = unsorted_chunks(av);
+   176,596  	if (!in_smallbin_range(remainder_size))
          .  	  {
-    49,682  	    remainder->fd_nextsize = NULL;
-    49,682  	    remainder->bk_nextsize = NULL;
+    81,786  	    remainder->fd_nextsize = NULL;
+    81,786  	    remainder->bk_nextsize = NULL;
          .  	  }
          .  
-   496,648  	set_head(victim, nb | PREV_INUSE |
+   706,384  	set_head(victim, nb | PREV_INUSE |
          .  		 (av != &main_arena ? NON_MAIN_ARENA : 0));
-   186,243  	set_head(remainder, remainder_size | PREV_INUSE);
-    62,081  	set_foot(remainder, remainder_size);
+   264,894  	set_head(remainder, remainder_size | PREV_INUSE);
+    88,298  	set_foot(remainder, remainder_size);
          .  
          .  	check_malloced_chunk(av, victim, nb);
-    62,081  	void *p = chunk2mem(victim);
-   248,324  	if (__builtin_expect (perturb_byte, 0))
+    88,298  	void *p = chunk2mem(victim);
+   353,192  	if (__builtin_expect (perturb_byte, 0))
          .  	  alloc_perturb (p, bytes);
          .  	return p;
          .        }
          .  
          .        /* remove from unsorted list */
-   205,968        unsorted_chunks(av)->bk = bck;
-   205,968        bck->fd = unsorted_chunks(av);
+   224,828        unsorted_chunks(av)->bk = bck;
+   224,828        bck->fd = unsorted_chunks(av);
          .  
          .        /* Take now instead of binning if exact fit */
          .  
-   411,936        if (size == nb) {
-    16,581  	set_inuse_bit_at_offset(victim, size);
-    49,743  	if (av != &main_arena)
+   449,656        if (size == nb) {
+     4,808  	set_inuse_bit_at_offset(victim, size);
+    14,424  	if (av != &main_arena)
          .  	  victim->size |= NON_MAIN_ARENA;
          .  	check_malloced_chunk(av, victim, nb);
          .  	void *p = chunk2mem(victim);
@@ -1951,62 +1890,62 @@ Auto-annotation:  on
          .  
          .        /* place chunk in bin */
          .  
-   378,774        if (in_smallbin_range(size)) {
-   185,342  	victim_index = smallbin_index(size);
-   556,026  	bck = bin_at(av, victim_index);
- 1,482,736  	fwd = bck->fd;
+   440,040        if (in_smallbin_range(size)) {
+   219,196  	victim_index = smallbin_index(size);
+   657,588  	bck = bin_at(av, victim_index);
+ 1,753,568  	fwd = bck->fd;
          .        }
          .        else {
-    67,253  	victim_index = largebin_index(size);
-     4,045  	bck = bin_at(av, victim_index);
-     4,045  	fwd = bck->fd;
+    14,846  	victim_index = largebin_index(size);
+       824  	bck = bin_at(av, victim_index);
+       824  	fwd = bck->fd;
          .  
          .  	/* maintain large bins in sorted order */
-     8,090  	if (fwd != bck) {
+     1,648  	if (fwd != bck) {
          .  	  /* Or with inuse bit to speed comparisons */
-     2,999  	  size |= PREV_INUSE;
+       595  	  size |= PREV_INUSE;
          .  	  /* if smaller than smallest, bypass loop below */
          .  	  assert((bck->bk->size & NON_MAIN_ARENA) == 0);
-     8,997  	  if ((unsigned long)(size) < (unsigned long)(bck->bk->size)) {
+     1,785  	  if ((unsigned long)(size) < (unsigned long)(bck->bk->size)) {
          .  	    fwd = bck;
          .  	    bck = bck->bk;
          .  
-       592  	    victim->fd_nextsize = fwd->fd;
-     1,184  	    victim->bk_nextsize = fwd->fd->bk_nextsize;
-     2,368  	    fwd->fd->bk_nextsize = victim->bk_nextsize->fd_nextsize = victim;
+        36  	    victim->fd_nextsize = fwd->fd;
+        72  	    victim->bk_nextsize = fwd->fd->bk_nextsize;
+       144  	    fwd->fd->bk_nextsize = victim->bk_nextsize->fd_nextsize = victim;
          .  	  }
          .  	  else {
          .  	    assert((fwd->size & NON_MAIN_ARENA) == 0);
-    12,579  	    while ((unsigned long) size < fwd->size)
+     2,607  	    while ((unsigned long) size < fwd->size)
          .  	      {
-     1,786  		fwd = fwd->fd_nextsize;
+       310  		fwd = fwd->fd_nextsize;
          .  		assert((fwd->size & NON_MAIN_ARENA) == 0);
          .  	      }
          .  
-     4,814  	    if ((unsigned long) size == (unsigned long) fwd->size)
+     1,118  	    if ((unsigned long) size == (unsigned long) fwd->size)
          .  	      /* Always insert in the second position.  */
-     4,574  	      fwd = fwd->fd;
+       944  	      fwd = fwd->fd;
          .  	    else
          .  	      {
-       120  		victim->fd_nextsize = fwd;
-       240  		victim->bk_nextsize = fwd->bk_nextsize;
-       120  		fwd->bk_nextsize = victim;
-       240  		victim->bk_nextsize->fd_nextsize = victim;
+        87  		victim->fd_nextsize = fwd;
+       174  		victim->bk_nextsize = fwd->bk_nextsize;
+        87  		fwd->bk_nextsize = victim;
+       174  		victim->bk_nextsize->fd_nextsize = victim;
          .  	      }
-     4,814  	    bck = fwd->bk;
+     1,118  	    bck = fwd->bk;
          .  	  }
          .  	} else
-     4,184  	  victim->fd_nextsize = victim->bk_nextsize = victim;
+       916  	  victim->fd_nextsize = victim->bk_nextsize = victim;
          .        }
          .  
-   378,774        mark_bin(av, victim_index);
-   189,387        victim->bk = bck;
-   189,387        victim->fd = fwd;
-   189,387        fwd->bk = victim;
-   378,774        bck->fd = victim;
+   440,040        mark_bin(av, victim_index);
+   220,020        victim->bk = bck;
+   220,020        victim->fd = fwd;
+   220,020        fwd->bk = victim;
+   440,040        bck->fd = victim;
          .  
          .  #define MAX_ITERS	10000
-   378,774        if (++iters >= MAX_ITERS)
+   440,040        if (++iters >= MAX_ITERS)
          .  	break;
          .      }
          .  
@@ -2015,11 +1954,11 @@ Auto-annotation:  on
          .        sorted order to find smallest that fits.  Use the skip list for this.
          .      */
          .  
-    73,596      if (!in_smallbin_range(nb)) {
-       120        bin = bin_at(av, idx);
+    75,294      if (!in_smallbin_range(nb)) {
+        76        bin = bin_at(av, idx);
          .  
          .        /* skip scan if empty or largest chunk is too small */
-        94        if ((victim = first(bin)) != bin &&
+        61        if ((victim = first(bin)) != bin &&
          .  	  (unsigned long)(victim->size) >= (unsigned long)(nb)) {
          .  
          .  	victim = victim->bk_nextsize;
@@ -2038,98 +1977,98 @@ Auto-annotation:  on
          .        when no chunks have been returned yet is faster than it might look.
          .      */
          .  
-    49,064      ++idx;
-    98,128      bin = bin_at(av,idx);
-    49,064      block = idx2block(idx);
-    49,064      map = av->binmap[block];
-    98,128      bit = idx2bit(idx);
+    50,196      ++idx;
+   100,392      bin = bin_at(av,idx);
+    50,196      block = idx2block(idx);
+    50,196      map = av->binmap[block];
+   100,392      bit = idx2bit(idx);
          .  
          .      for (;;) {
          .  
          .        /* Skip rest of block if there are no more set bits in this block.  */
-   131,432        if (bit > map || bit == 0) {
+   128,787        if (bit > map || bit == 0) {
          .  	do {
-   200,286  	  if (++block >= BINMAPSIZE)  /* out of bins */
+   250,362  	  if (++block >= BINMAPSIZE)  /* out of bins */
          .  	    goto use_top;
-   211,468  	} while ( (map = av->binmap[block]) == 0);
+   252,608  	} while ( (map = av->binmap[block]) == 0);
          .  
-    32,214  	bin = bin_at(av, (block << BINMAPSHIFT));
+     5,718  	bin = bin_at(av, (block << BINMAPSHIFT));
          .  	bit = 1;
          .        }
          .  
          .        /* Advance to bin with set bit. There must be one. */
-   157,761        while ((bit & map) == 0) {
-    62,172  	bin = next_bin(bin);
-    62,172  	bit <<= 1;
+    58,103        while ((bit & map) == 0) {
+    22,007  	bin = next_bin(bin);
+    22,007  	bit <<= 1;
          .  	assert(bit != 0);
          .        }
          .  
          .        /* Inspect the bin. It is likely to be non-empty */
-    14,273        victim = last(bin);
+     6,590        victim = last(bin);
          .  
          .        /*  If a false alarm (empty bin), clear the bit. */
-    28,546        if (victim == bin) {
-    14,544  	av->binmap[block] = map &= ~bit; /* Write through */
-     3,636  	bin = next_bin(bin);
-     3,636  	bit <<= 1;
+    13,180        if (victim == bin) {
+     7,176  	av->binmap[block] = map &= ~bit; /* Write through */
+     1,794  	bin = next_bin(bin);
+     1,794  	bit <<= 1;
          .        }
          .  
          .        else {
-    21,274  	size = chunksize(victim);
+     9,592  	size = chunksize(victim);
          .  
          .  	/*  We know the first chunk in this bin is big enough to use. */
          .  	assert((unsigned long)(size) >= (unsigned long)(nb));
          .  
-    21,274  	remainder_size = size - nb;
+     9,592  	remainder_size = size - nb;
          .  
          .  	/* unlink */
-   128,660  	unlink(av, victim, bck, fwd);
+    52,382  	unlink(av, victim, bck, fwd);
          .  
          .  	/* Exhaust */
-    21,274  	if (remainder_size < MINSIZE) {
-     1,446  	  set_inuse_bit_at_offset(victim, size);
-     5,784  	  if (av != &main_arena)
+     9,592  	if (remainder_size < MINSIZE) {
+     1,047  	  set_inuse_bit_at_offset(victim, size);
+     4,188  	  if (av != &main_arena)
          .  	    victim->size |= NON_MAIN_ARENA;
          .  	}
          .  
          .  	/* Split */
          .  	else {
-     9,191  	  remainder = chunk_at_offset(victim, nb);
+     3,749  	  remainder = chunk_at_offset(victim, nb);
          .  
          .  	  /* We cannot assume the unsorted list is empty and therefore
          .  	     have to perform a complete insert here.  */
          .  	  bck = unsorted_chunks(av);
-     9,191  	  fwd = bck->fd;
-    18,382  	  if (__builtin_expect (fwd->bk != bck, 0))
+     3,749  	  fwd = bck->fd;
+     7,498  	  if (__builtin_expect (fwd->bk != bck, 0))
          .  	    {
          .  	      errstr = "malloc(): corrupted unsorted chunks 2";
          .  	      goto errout;
          .  	    }
-     9,191  	  remainder->bk = bck;
-     9,191  	  remainder->fd = fwd;
-     9,191  	  bck->fd = remainder;
-     9,191  	  fwd->bk = remainder;
+     3,749  	  remainder->bk = bck;
+     3,749  	  remainder->fd = fwd;
+     3,749  	  bck->fd = remainder;
+     3,749  	  fwd->bk = remainder;
          .  
          .  	  /* advertise as last remainder */
-    18,382  	  if (in_smallbin_range(nb))
-     9,189  	    av->last_remainder = remainder;
-    18,382  	  if (!in_smallbin_range(remainder_size))
+     7,498  	  if (in_smallbin_range(nb))
+     3,747  	    av->last_remainder = remainder;
+     7,498  	  if (!in_smallbin_range(remainder_size))
          .  	    {
-     3,167  	      remainder->fd_nextsize = NULL;
-     3,167  	      remainder->bk_nextsize = NULL;
+       767  	      remainder->fd_nextsize = NULL;
+       767  	      remainder->bk_nextsize = NULL;
          .  	    }
-    73,528  	  set_head(victim, nb | PREV_INUSE |
+    29,992  	  set_head(victim, nb | PREV_INUSE |
          .  		   (av != &main_arena ? NON_MAIN_ARENA : 0));
-    36,764  	  set_head(remainder, remainder_size | PREV_INUSE);
-     9,191  	  set_foot(remainder, remainder_size);
+    14,996  	  set_head(remainder, remainder_size | PREV_INUSE);
+     3,749  	  set_foot(remainder, remainder_size);
          .  	}
          .  	check_malloced_chunk(av, victim, nb);
- 1,338,890  	void *p = chunk2mem(victim);
- 4,016,670  	if (__builtin_expect (perturb_byte, 0))
+ 1,306,250  	void *p = chunk2mem(victim);
+ 3,918,750  	if (__builtin_expect (perturb_byte, 0))
          .  	  alloc_perturb (p, bytes);
          .  	return p;
          .        }
-     3,636      }
+     1,794      }
          .  
          .    use_top:
          .      /*
@@ -2148,20 +2087,20 @@ Auto-annotation:  on
          .        to put in fenceposts in sysmalloc.)
          .      */
          .  
-    27,790      victim = av->top;
-    27,790      size = chunksize(victim);
+    40,604      victim = av->top;
+    40,604      size = chunksize(victim);
          .  
-    27,790      if ((unsigned long)(size) >= (unsigned long)(nb + MINSIZE)) {
+    40,604      if ((unsigned long)(size) >= (unsigned long)(nb + MINSIZE)) {
          .        remainder_size = size - nb;
-    13,867        remainder = chunk_at_offset(victim, nb);
-    13,867        av->top = remainder;
-   124,803        set_head(victim, nb | PREV_INUSE |
+    20,276        remainder = chunk_at_offset(victim, nb);
+    20,276        av->top = remainder;
+   182,484        set_head(victim, nb | PREV_INUSE |
          .  	       (av != &main_arena ? NON_MAIN_ARENA : 0));
-    55,468        set_head(remainder, remainder_size | PREV_INUSE);
+    81,104        set_head(remainder, remainder_size | PREV_INUSE);
          .  
          .        check_malloced_chunk(av, victim, nb);
-    13,867        void *p = chunk2mem(victim);
-    55,564        if (__builtin_expect (perturb_byte, 0))
+    20,276        void *p = chunk2mem(victim);
+    81,196        if (__builtin_expect (perturb_byte, 0))
          .  	alloc_perturb (p, bytes);
          .        return p;
          .      }
@@ -2169,14 +2108,14 @@ Auto-annotation:  on
          .  #ifdef ATOMIC_FASTBINS
          .      /* When we are using atomic ops to free fast chunks we can get
          .         here for all block sizes.  */
-        56      else if (have_fastchunks(av)) {
-        20        malloc_consolidate(av);
-     1,115  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc_consolidate (4x)
+        52      else if (have_fastchunks(av)) {
+        15        malloc_consolidate(av);
+     2,765  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc_consolidate (3x)
          .        /* restore original bin index */
-        20        if (in_smallbin_range(nb))
-   309,570  	idx = smallbin_index(nb);
+        15        if (in_smallbin_range(nb))
+   354,603  	idx = smallbin_index(nb);
          .        else
- 2,786,146  	idx = largebin_index(nb);
+ 3,191,439  	idx = largebin_index(nb);
          .      }
          .  #else
          .      /*
@@ -2195,12 +2134,12 @@ Auto-annotation:  on
          .      */
          .      else {
          .        void *p = sYSMALLOc(nb, av);
-        72        if (p != NULL && __builtin_expect (perturb_byte, 0))
-        45  	alloc_perturb (p, bytes);
+        69        if (p != NULL && __builtin_expect (perturb_byte, 0))
+        43  	alloc_perturb (p, bytes);
          .        return p;
          .      }
          .    }
-12,733,758  }
+12,733,623  }
          .  
          .  /*
          .    ------------------------------ free ------------------------------
@@ -2212,7 +2151,7 @@ Auto-annotation:  on
          .  #else
          .  _int_free(mstate av, mchunkptr p)
          .  #endif
-14,100,710  {
+14,100,560  {
          .    INTERNAL_SIZE_T size;        /* its size */
          .    mfastbinptr*    fb;          /* associated fastbin */
          .    mchunkptr       nextchunk;   /* next contiguous chunk */
@@ -2227,13 +2166,13 @@ Auto-annotation:  on
          .    int locked = 0;
          .  #endif
          .  
- 4,230,213    size = chunksize(p);
+ 4,230,168    size = chunksize(p);
          .  
          .    /* Little security check which won't hurt performance: the
          .       allocator never wrapps around at the end of the address space.
          .       Therefore we can exclude some size values which might appear
          .       here by accident or by "design" from some intruder.  */
- 8,460,426    if (__builtin_expect ((uintptr_t) p > (uintptr_t) -size, 0)
+ 8,460,336    if (__builtin_expect ((uintptr_t) p > (uintptr_t) -size, 0)
          .        || __builtin_expect (misaligned_chunk (p), 0))
          .      {
          .        errstr = "free(): invalid pointer";
@@ -2252,7 +2191,7 @@ Auto-annotation:  on
          .        return;
          .      }
          .    /* We know that each chunk is at least MINSIZE bytes in size.  */
- 2,820,142    if (__builtin_expect (size < MINSIZE, 0))
+ 2,820,112    if (__builtin_expect (size < MINSIZE, 0))
          .      {
          .        errstr = "free(): invalid size";
          .        goto errout;
@@ -2265,7 +2204,7 @@ Auto-annotation:  on
          .      and used quickly in malloc.
          .    */
          .  
- 2,820,142    if ((unsigned long)(size) <= (unsigned long)(get_max_fast ())
+ 2,820,112    if ((unsigned long)(size) <= (unsigned long)(get_max_fast ())
          .  
          .  #if TRIM_FASTBINS
          .        /*
@@ -2276,8 +2215,8 @@ Auto-annotation:  on
          .  #endif
          .        ) {
          .  
- 5,882,040      if (__builtin_expect (chunk_at_offset (p, size)->size <= 2 * SIZE_SZ, 0)
- 2,352,816  	|| __builtin_expect (chunksize (chunk_at_offset (p, size))
+ 5,881,970      if (__builtin_expect (chunk_at_offset (p, size)->size <= 2 * SIZE_SZ, 0)
+ 2,352,788  	|| __builtin_expect (chunksize (chunk_at_offset (p, size))
          .  			     >= av->system_mem, 0))
          .        {
          .  #ifdef ATOMIC_FASTBINS
@@ -2296,22 +2235,22 @@ Auto-annotation:  on
          .  #endif
          .        }
          .  
- 3,529,224      if (__builtin_expect (perturb_byte, 0))
+ 3,529,182      if (__builtin_expect (perturb_byte, 0))
          .        free_perturb (chunk2mem(p), size - SIZE_SZ);
          .  
- 3,529,224      set_fastchunks(av);
- 2,352,816      unsigned int idx = fastbin_index(size);
- 2,352,816      fb = &fastbin (av, idx);
+ 3,529,182      set_fastchunks(av);
+ 2,352,788      unsigned int idx = fastbin_index(size);
+ 2,352,788      fb = &fastbin (av, idx);
          .  
          .  #ifdef ATOMIC_FASTBINS
          .      /* Atomically link P to its fastbin: P->FD = *FB; *FB = P;  */
- 1,176,408      mchunkptr old = *fb, old2;
+ 1,176,394      mchunkptr old = *fb, old2;
          .      unsigned int old_idx = ~0u;
          .      do
          .        {
          .  	/* Check that the top of the bin is not the record we are going to add
          .  	   (i.e., double free).  */
- 8,234,856  	if (__builtin_expect (old == p, 0))
+ 8,234,758  	if (__builtin_expect (old == p, 0))
          .  	  {
          .  	    errstr = "double free or corruption (fasttop)";
          .  	    goto errout;
@@ -2320,13 +2259,13 @@ Auto-annotation:  on
          .  	   size of the chunk that we are adding.  We can dereference OLD
          .  	   only if we have the lock, otherwise it might have already been
          .  	   deallocated.  See use of OLD_IDX below for the actual check.  */
- 4,705,632  	if (have_lock && old != NULL)
+ 4,705,576  	if (have_lock && old != NULL)
          .  	  old_idx = fastbin_index(chunksize(old));
- 1,176,408  	p->fd = old2 = old;
+ 1,176,394  	p->fd = old2 = old;
          .        }
- 7,058,448      while ((old = catomic_compare_and_exchange_val_rel (fb, p, old2)) != old2);
+ 7,058,364      while ((old = catomic_compare_and_exchange_val_rel (fb, p, old2)) != old2);
          .  
- 2,352,816      if (have_lock && old != NULL && __builtin_expect (old_idx != idx, 0))
+ 2,352,788      if (have_lock && old != NULL && __builtin_expect (old_idx != idx, 0))
          .        {
          .  	errstr = "invalid fastbin entry (free)";
          .  	goto errout;
@@ -2345,9 +2284,9 @@ Auto-annotation:  on
          .      Consolidate other non-mmapped chunks as they arrive.
          .    */
          .  
-   467,326    else if (!chunk_is_mmapped(p)) {
+   467,324    else if (!chunk_is_mmapped(p)) {
          .  #ifdef ATOMIC_FASTBINS
-   934,652      if (! have_lock) {
+   934,648      if (! have_lock) {
          .  # if THREAD_STATS
          .        if(!mutex_trylock(&av->mutex))
          .  	++(av->stat_lock_direct);
@@ -2356,65 +2295,65 @@ Auto-annotation:  on
          .  	++(av->stat_lock_wait);
          .        }
          .  # else
- 1,869,152        (void)mutex_lock(&av->mutex);
+ 1,869,224        (void)mutex_lock(&av->mutex);
          .  # endif
          .        locked = 1;
          .      }
          .  #endif
          .  
-   233,663      nextchunk = chunk_at_offset(p, size);
+   233,662      nextchunk = chunk_at_offset(p, size);
          .  
          .      /* Lightweight tests: check whether the block is already the
          .         top block.  */
-   700,989      if (__builtin_expect (p == av->top, 0))
+   700,986      if (__builtin_expect (p == av->top, 0))
          .        {
          .  	errstr = "double free or corruption (top)";
          .  	goto errout;
          .        }
          .      /* Or whether the next chunk is beyond the boundaries of the arena.  */
- 1,168,315      if (__builtin_expect (contiguous (av)
+ 1,168,310      if (__builtin_expect (contiguous (av)
          .  			  && (char *) nextchunk
-   700,989  			  >= ((char *) av->top + chunksize(av->top)), 0))
+   700,986  			  >= ((char *) av->top + chunksize(av->top)), 0))
          .        {
          .  	errstr = "double free or corruption (out)";
          .  	goto errout;
          .        }
          .      /* Or whether the block is actually not marked used.  */
-   700,989      if (__builtin_expect (!prev_inuse(nextchunk), 0))
+   700,986      if (__builtin_expect (!prev_inuse(nextchunk), 0))
          .        {
          .  	errstr = "double free or corruption (!prev)";
          .  	goto errout;
          .        }
          .  
-   233,663      nextsize = chunksize(nextchunk);
-   934,652      if (__builtin_expect (nextchunk->size <= 2 * SIZE_SZ, 0)
+   233,662      nextsize = chunksize(nextchunk);
+   934,648      if (__builtin_expect (nextchunk->size <= 2 * SIZE_SZ, 0)
          .  	|| __builtin_expect (nextsize >= av->system_mem, 0))
          .        {
          .  	errstr = "free(): invalid next size (normal)";
          .  	goto errout;
          .        }
          .  
-   700,989      if (__builtin_expect (perturb_byte, 0))
+   700,986      if (__builtin_expect (perturb_byte, 0))
          .        free_perturb (chunk2mem(p), size - SIZE_SZ);
          .  
          .      /* consolidate backward */
-   467,326      if (!prev_inuse(p)) {
-       328        prevsize = p->prev_size;
-       328        size += prevsize;
-       328        p = chunk_at_offset(p, -((long) prevsize));
-     3,867        unlink(av, p, bck, fwd);
+   467,324      if (!prev_inuse(p)) {
+     1,208        prevsize = p->prev_size;
+     1,208        size += prevsize;
+     1,208        p = chunk_at_offset(p, -((long) prevsize));
+    14,014        unlink(av, p, bck, fwd);
          .      }
          .  
-   467,326      if (nextchunk != av->top) {
+   467,324      if (nextchunk != av->top) {
          .        /* get and clear inuse bit */
          .        nextinuse = inuse_bit_at_offset(nextchunk, nextsize);
          .  
          .        /* consolidate forward */
-   467,020        if (!nextinuse) {
-   448,575  	unlink(av, nextchunk, bck, fwd);
-    38,004  	size += nextsize;
+   467,314        if (!nextinuse) {
+    35,845  	unlink(av, nextchunk, bck, fwd);
+     3,228  	size += nextsize;
          .        } else
-   391,012  	clear_inuse_bit_at_offset(nextchunk, 0);
+   460,858  	clear_inuse_bit_at_offset(nextchunk, 0);
          .  
          .        /*
          .  	Place the chunk in unsorted chunk list. Chunks are
@@ -2422,25 +2361,25 @@ Auto-annotation:  on
          .  	been given one chance to be used in malloc.
          .        */
          .  
-   233,510        bck = unsorted_chunks(av);
-   233,510        fwd = bck->fd;
-   467,020        if (__builtin_expect (fwd->bk != bck, 0))
+   233,657        bck = unsorted_chunks(av);
+   233,657        fwd = bck->fd;
+   467,314        if (__builtin_expect (fwd->bk != bck, 0))
          .  	{
          .  	  errstr = "free(): corrupted unsorted chunks";
          .  	  goto errout;
          .  	}
-   233,510        p->fd = fwd;
-   233,510        p->bk = bck;
-   467,020        if (!in_smallbin_range(size))
+   233,657        p->fd = fwd;
+   233,657        p->bk = bck;
+   467,314        if (!in_smallbin_range(size))
          .  	{
-    26,956  	  p->fd_nextsize = NULL;
-    26,956  	  p->bk_nextsize = NULL;
+     1,884  	  p->fd_nextsize = NULL;
+     1,884  	  p->bk_nextsize = NULL;
          .  	}
-   233,510        bck->fd = p;
-   233,510        fwd->bk = p;
+   233,657        bck->fd = p;
+   233,657        fwd->bk = p;
          .  
-   700,530        set_head(p, size | PREV_INUSE);
-   233,510        set_foot(p, size);
+   700,971        set_head(p, size | PREV_INUSE);
+   233,657        set_foot(p, size);
          .  
          .        check_free_chunk(av, p);
          .      }
@@ -2451,9 +2390,9 @@ Auto-annotation:  on
          .      */
          .  
          .      else {
-       153        size += nextsize;
-       612        set_head(p, size | PREV_INUSE);
-       153        av->top = p;
+         5        size += nextsize;
+        20        set_head(p, size | PREV_INUSE);
+         5        av->top = p;
          .        check_chunk(av, p);
          .      }
          .  
@@ -2472,14 +2411,14 @@ Auto-annotation:  on
          .        is reached.
          .      */
          .  
-   467,326      if ((unsigned long)(size) >= FASTBIN_CONSOLIDATION_THRESHOLD) {
-       266        if (have_fastchunks(av))
-       372  	malloc_consolidate(av);
-   930,907  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc_consolidate (124x)
+   467,324      if ((unsigned long)(size) >= FASTBIN_CONSOLIDATION_THRESHOLD) {
+       168        if (have_fastchunks(av))
+       249  	malloc_consolidate(av);
+ 2,923,173  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:malloc_consolidate (83x)
          .  
-       399        if (av == &main_arena) {
+       252        if (av == &main_arena) {
          .  #ifndef MORECORE_CANNOT_TRIM
-       665  	if ((unsigned long)(chunksize(av->top)) >=
+       420  	if ((unsigned long)(chunksize(av->top)) >=
          .  	    (unsigned long)(mp_.trim_threshold))
          .  	  sYSTRIm(mp_.top_pad, av);
          .  #endif
@@ -2494,9 +2433,9 @@ Auto-annotation:  on
          .      }
          .  
          .  #ifdef ATOMIC_FASTBINS
-   700,989      if (! have_lock) {
+   700,986      if (! have_lock) {
          .        assert (locked);
-   934,576        (void)mutex_unlock(&av->mutex);
+   934,612        (void)mutex_unlock(&av->mutex);
          .      }
          .  #endif
          .    }
@@ -2515,7 +2454,7 @@ Auto-annotation:  on
          .      munmap_chunk (p);
          .  #endif
          .    }
-11,280,568  }
+11,280,448  }
          .  
          .  /*
          .    ------------------------- malloc_consolidate -------------------------
@@ -2538,7 +2477,7 @@ Auto-annotation:  on
          .  #else
          .  static void malloc_consolidate(av) mstate av;
          .  #endif
-     1,056  {
+       736  {
          .    mfastbinptr*    fb;                 /* current fastbin being consolidated */
          .    mfastbinptr*    maxfb;              /* last fastbin (for loop control) */
          .    mchunkptr       p;                  /* current chunk being consolidated */
@@ -2557,10 +2496,10 @@ Auto-annotation:  on
          .      yet been initialized, in which case do so below
          .    */
          .  
-       264    if (get_max_fast () != 0) {
-       393      clear_fastchunks(av);
+       184    if (get_max_fast () != 0) {
+       273      clear_fastchunks(av);
          .  
-       131      unsorted_bin = unsorted_chunks(av);
+        91      unsorted_bin = unsorted_chunks(av);
          .  
          .      /*
          .        Remove each chunk from fast bin and consolidate it, placing it
@@ -2579,75 +2518,75 @@ Auto-annotation:  on
          .         search all bins all the time.  */
          .      maxfb = &fastbin (av, fastbin_index(get_max_fast ()));
          .  #else
-       131      maxfb = &fastbin (av, NFASTBINS - 1);
+        91      maxfb = &fastbin (av, NFASTBINS - 1);
          .  #endif
-       262      fb = &fastbin (av, 0);
+       182      fb = &fastbin (av, 0);
          .      do {
          .  #ifdef ATOMIC_FASTBINS
-     2,620        p = atomic_exchange_acq (fb, 0);
+     1,820        p = atomic_exchange_acq (fb, 0);
          .  #else
          .        p = *fb;
          .  #endif
-     3,592        if (p != 0) {
+     2,473        if (p != 0) {
          .  #ifndef ATOMIC_FASTBINS
          .  	*fb = 0;
          .  #endif
          .  	do {
          .  	  check_inuse_chunk(av, p);
-    36,159  	  nextp = p->fd;
+    89,236  	  nextp = p->fd;
          .  
          .  	  /* Slightly streamlined version of consolidation code in free() */
-   108,477  	  size = p->size & ~(PREV_INUSE|NON_MAIN_ARENA);
-    36,159  	  nextchunk = chunk_at_offset(p, size);
-    72,318  	  nextsize = chunksize(nextchunk);
+   267,708  	  size = p->size & ~(PREV_INUSE|NON_MAIN_ARENA);
+    89,236  	  nextchunk = chunk_at_offset(p, size);
+   178,472  	  nextsize = chunksize(nextchunk);
          .  
-    72,318  	  if (!prev_inuse(p)) {
-    23,431  	    prevsize = p->prev_size;
-    23,431  	    size += prevsize;
-    23,431  	    p = chunk_at_offset(p, -((long) prevsize));
-   253,173  	    unlink(av, p, bck, fwd);
+   178,472  	  if (!prev_inuse(p)) {
+    61,478  	    prevsize = p->prev_size;
+    61,478  	    size += prevsize;
+    61,478  	    p = chunk_at_offset(p, -((long) prevsize));
+   665,968  	    unlink(av, p, bck, fwd);
          .  	  }
          .  
-    72,318  	  if (nextchunk != av->top) {
+   178,472  	  if (nextchunk != av->top) {
          .  	    nextinuse = inuse_bit_at_offset(nextchunk, nextsize);
          .  
-    72,316  	    if (!nextinuse) {
-    15,635  	      size += nextsize;
-   158,811  	      unlink(av, nextchunk, bck, fwd);
+   178,454  	    if (!nextinuse) {
+    40,289  	      size += nextsize;
+   411,024  	      unlink(av, nextchunk, bck, fwd);
          .  	    } else
-    41,046  	      clear_inuse_bit_at_offset(nextchunk, 0);
+    97,876  	      clear_inuse_bit_at_offset(nextchunk, 0);
          .  
-    36,158  	    first_unsorted = unsorted_bin->fd;
-    36,158  	    unsorted_bin->fd = p;
-    36,158  	    first_unsorted->bk = p;
+    89,227  	    first_unsorted = unsorted_bin->fd;
+    89,227  	    unsorted_bin->fd = p;
+    89,227  	    first_unsorted->bk = p;
          .  
-    72,316  	    if (!in_smallbin_range (size)) {
-     7,283  	      p->fd_nextsize = NULL;
-     7,283  	      p->bk_nextsize = NULL;
+   178,454  	    if (!in_smallbin_range (size)) {
+    20,652  	      p->fd_nextsize = NULL;
+    20,652  	      p->bk_nextsize = NULL;
          .  	    }
          .  
-   108,474  	    set_head(p, size | PREV_INUSE);
-    36,158  	    p->bk = unsorted_bin;
-    36,158  	    p->fd = first_unsorted;
-    36,158  	    set_foot(p, size);
+   267,681  	    set_head(p, size | PREV_INUSE);
+    89,227  	    p->bk = unsorted_bin;
+    89,227  	    p->fd = first_unsorted;
+    89,227  	    set_foot(p, size);
          .  	  }
          .  
          .  	  else {
          .  	    size += nextsize;
-         4  	    set_head(p, size | PREV_INUSE);
-    36,160  	    av->top = p;
+        36  	    set_head(p, size | PREV_INUSE);
+    89,245  	    av->top = p;
          .  	  }
          .  
-    72,318  	} while ( (p = nextp) != 0);
+   178,472  	} while ( (p = nextp) != 0);
          .  
          .        }
-     4,978      } while (fb++ != maxfb);
+     3,458      } while (fb++ != maxfb);
          .    }
          .    else {
          .      malloc_init_state(av);
          .      check_malloc_state(av);
          .    }
-     1,056  }
+       736  }
          .  
          .  /*
          .    ------------------------------ realloc ------------------------------
@@ -2656,7 +2595,7 @@ Auto-annotation:  on
          .  Void_t*
          .  _int_realloc(mstate av, mchunkptr oldp, INTERNAL_SIZE_T oldsize,
          .  	     INTERNAL_SIZE_T nb)
-       189  {
+        90  {
          .    mchunkptr        newp;            /* chunk to return */
          .    INTERNAL_SIZE_T  newsize;         /* its size */
          .    Void_t*          newmem;          /* corresponding user mem */
@@ -2675,8 +2614,8 @@ Auto-annotation:  on
          .    const char *errstr = NULL;
          .  
          .    /* oldmem size */
-        84    if (__builtin_expect (oldp->size <= 2 * SIZE_SZ, 0)
-        63        || __builtin_expect (oldsize >= av->system_mem, 0))
+        40    if (__builtin_expect (oldp->size <= 2 * SIZE_SZ, 0)
+        30        || __builtin_expect (oldsize >= av->system_mem, 0))
          .      {
          .        errstr = "realloc(): invalid old size";
          .      errout:
@@ -2695,16 +2634,16 @@ Auto-annotation:  on
          .  #endif
          .    {
          .  
-        21      next = chunk_at_offset(oldp, oldsize);
-        42      INTERNAL_SIZE_T nextsize = chunksize(next);
-        84      if (__builtin_expect (next->size <= 2 * SIZE_SZ, 0)
+        10      next = chunk_at_offset(oldp, oldsize);
+        20      INTERNAL_SIZE_T nextsize = chunksize(next);
+        40      if (__builtin_expect (next->size <= 2 * SIZE_SZ, 0)
          .  	|| __builtin_expect (nextsize >= av->system_mem, 0))
          .        {
          .  	errstr = "realloc(): invalid next size";
          .  	goto errout;
          .        }
          .  
-        42      if ((unsigned long)(oldsize) >= (unsigned long)(nb)) {
+        20      if ((unsigned long)(oldsize) >= (unsigned long)(nb)) {
          .        /* already big enough; split below */
          .        newp = oldp;
          .        newsize = oldsize;
@@ -2712,18 +2651,18 @@ Auto-annotation:  on
          .  
          .      else {
          .        /* Try to expand forward into top */
-        48        if (next == av->top &&
+        23        if (next == av->top &&
          .  	  (unsigned long)(newsize = oldsize + nextsize) >=
-         2  	  (unsigned long)(nb + MINSIZE)) {
-        18  	set_head_size(oldp, nb | (av != &main_arena ? NON_MAIN_ARENA : 0));
-         4  	av->top = chunk_at_offset(oldp, nb);
-         6  	set_head(av->top, (newsize - nb) | PREV_INUSE);
+         1  	  (unsigned long)(nb + MINSIZE)) {
+         9  	set_head_size(oldp, nb | (av != &main_arena ? NON_MAIN_ARENA : 0));
+         2  	av->top = chunk_at_offset(oldp, nb);
+         3  	set_head(av->top, (newsize - nb) | PREV_INUSE);
          .  	check_inuse_chunk(av, oldp);
-         4  	return chunk2mem(oldp);
+         2  	return chunk2mem(oldp);
          .        }
          .  
          .        /* Try to expand forward into next chunk;  split off remainder below */
-        41        else if (next != av->top &&
+        21        else if (next != av->top &&
          .  	       !inuse(next) &&
          .  	       (unsigned long)(newsize = oldsize + nextsize) >=
          .  	       (unsigned long)(nb)) {
@@ -2733,18 +2672,18 @@ Auto-annotation:  on
          .  
          .        /* allocate, copy, free */
          .        else {
-        95  	newmem = _int_malloc(av, nb - MALLOC_ALIGN_MASK);
-   667,583  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc (19x)
-        76  	if (newmem == 0)
+        45  	newmem = _int_malloc(av, nb - MALLOC_ALIGN_MASK);
+   985,392  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_malloc (9x)
+        36  	if (newmem == 0)
          .  	  return 0; /* propagate failure */
          .  
-        19  	newp = mem2chunk(newmem);
-        19  	newsize = chunksize(newp);
+         9  	newp = mem2chunk(newmem);
+         9  	newsize = chunksize(newp);
          .  
          .  	/*
          .  	  Avoid copy if newp is next chunk after oldp.
          .  	*/
-        38  	if (newp == next) {
+        18  	if (newp == next) {
          .  	  newsize += oldsize;
          .  	  newp = oldp;
          .  	}
@@ -2755,15 +2694,15 @@ Auto-annotation:  on
          .  	    INTERNAL_SIZE_T-sized words; minimally 3.
          .  	  */
          .  
-        19  	  copysize = oldsize - SIZE_SZ;
-        19  	  s = (INTERNAL_SIZE_T*)(chunk2mem(oldp));
+         9  	  copysize = oldsize - SIZE_SZ;
+         9  	  s = (INTERNAL_SIZE_T*)(chunk2mem(oldp));
          .  	  d = (INTERNAL_SIZE_T*)(newmem);
-        38  	  ncopies = copysize / sizeof(INTERNAL_SIZE_T);
+        18  	  ncopies = copysize / sizeof(INTERNAL_SIZE_T);
          .  	  assert(ncopies >= 3);
          .  
-        38  	  if (ncopies > 9)
-        57  	    MALLOC_COPY(d, s, copysize);
-   379,428  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memcpy.S:memcpy (19x)
+        18  	  if (ncopies > 9)
+        27  	    MALLOC_COPY(d, s, copysize);
+    96,979  => /usr/src/debug////////glibc-2.12-2-gc4ccff1/string/../sysdeps/x86_64/memcpy.S:memcpy (9x)
          .  
          .  	  else {
          .  	    *(d+0) = *(s+0);
@@ -2782,13 +2721,13 @@ Auto-annotation:  on
          .  	  }
          .  
          .  #ifdef ATOMIC_FASTBINS
-        76  	  _int_free(av, oldp, 1);
-     1,836  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_free (19x)
+        36  	  _int_free(av, oldp, 1);
+       852  => /usr/src/debug/glibc-2.12-2-gc4ccff1/malloc/malloc.c:_int_free (9x)
          .  #else
          .  	  _int_free(av, oldp);
          .  #endif
          .  	  check_inuse_chunk(av, newp);
-        59  	  return chunk2mem(newp);
+        28  	  return chunk2mem(newp);
          .  	}
          .        }
          .      }
@@ -2807,7 +2746,7 @@ Auto-annotation:  on
          .  #endif
          .    }
          .  #endif
-       147  }
+        70  }
          .  
          .  /*
          .    ------------------------------ memalign ------------------------------

@@ -1,66 +1,6 @@
 Thomas Li (mli04) & Spencer Schoeben (sschoe05)
 
-We never worked in Halligan and never got help from any TAs. 
-However, Wikipedia was very helpful. Understanding the background and 
-history of Universal Turing Machines and the von Neumann (Princeton)
-architecture made this assignment more fun and meaningful.
-For remaining questions, Piazza was a savior!
+We recieved help from the internet, but not from any TAs as we worked remotely and not in Halligan.
 
-We have implemented everything correctly.
-
-We followed our design document very closely. There were no signifigant
-departures from our plan.
-
-Our UM is made up of the following modules:
-        - Controller
-        - Program Loader
-        - Instruction Execution
-        - Memory Management
-        - I/O
-        - Virtualization
-
-The controller acts as the glue for all the other modules and is the only one
-we call directly in our program's main function. It creates a new instance of
-the UM, runs the UM, and then kills the UM as a way to free memory.
-
-Undernearth, the virtualization module maintains datatype definitions that
-are shared between all the modules, as well as functions for loading and 
-storing to registers.
-
-Memory management module deals with mapping and unmapping segments within 
-the virtual enviornement of our UM, returning 32-bit segment pointers
-as opposed to the actual underlying memory pointers.
-
-Program loader is called by the controller to load a program from file and into
-memory, one machine code instruction at a time.
-
-Instruction execution module then deals with executing each instruction, 
-including reading and writing to I/O which the I/O module takes care of.
-
-The 2 billion instruction sandmark.umz program takes our UM 107.21 seconds to
-execute. That is 18,654,976.21 instructions per second. Therefore, 50 million
-instructions takes 2.68 seconds.
-
-UNIT TESTS:
-        halt:
-                makes sure our program can successfully halt. if it can't,
-                prints "Bad!"
-        goto:
-                checks that the jump (load program) instruction works
-                and outputs "GOTO passed." if it does. otherwise "GOTO fail."
-                is printed and the UM is broken!
-        arith:
-                does a series of calcultations to make sure our machine can
-                do arithmatic properly. we even test subtraction which is 
-                implemented with two's complement (one's compliment (by 
-                NANDing a number with itself) + 1).
-        mem:
-                tests to ensure that our machine can map lots and lots of
-                memory segments. attemps to map 100 segments of length 10,000
-                if our machine runs out of memory, an error will be printed to
-                stderr. otherwise, this test should work!
-
-TIME SPENT:
-        Analyzing: 6 hours
-        Desigining: 6 hours
-        Coding: 12 hours
+Hours spent analyzing: 6 hours
+Hours spent solving/coding: 6 hours
